@@ -1,0 +1,48 @@
+{
+    "name": "jssor-slider",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jssor/slider.git"
+    },
+    "description": "touch swipe image slider/slideshow/gallery/carousel/banner mobile responsive bootstrap",
+    "version": "28.0.0",
+    "homepage": "https://www.jssor.com",
+    "keywords": [
+        "javascript",
+        "slider",
+        "carousel",
+        "slideshow",
+        "gallery",
+        "html5 ad",
+        "banner",
+        "photo",
+        "image",
+        "picture",
+        "content",
+        "text",
+        "layer",
+        "animation",
+        "js",
+        "mobile",
+        "responsive",
+        "front-end",
+        "touch",
+        "swipe",
+        "web",
+        "website",
+        "web page"
+    ],
+    "license": ["MIT"],
+    "main": [
+        "js/jssor.slider.min.js"
+    ],
+    "ignore": [
+        "demos/",
+        "examples/",
+        "transitions/",
+
+        "img/"
+    ],
+    "dependencies": {
+    }
+}

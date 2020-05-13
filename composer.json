@@ -1,0 +1,35 @@
+{
+    "autoload": {
+        "files": [
+            "system/shonir.common.php",
+            "system/shonir.database.php",
+            "system/shonir.language.php",
+            "system/shonir.currency.php",
+            "system/shonir.session.php",
+            "system/shonir.cookie.php",
+            "system/shonir.settings.php",
+            "system/shonir.brands.php",
+            "system/shonir.administrators.php",
+            "system/shonir.ajax.php",
+            "system/shonir.cart.php",
+            "system/shonir.categories.php",
+            "system/shonir.checkout.php",
+            "system/shonir.code.php",
+            "system/shonir.orders.php",
+            "system/shonir.vendors.php",
+            "system/shonir.customers.php",
+            "system/shonir.contact.php",
+            "system/shonir.dashboard.php",
+            "system/shonir.go.php",
+            "system/shonir.logout.php",
+            "system/shonir.pages.php",
+            "system/shonir.products.php",
+            "system/shonir.feeds.php",
+            "system/shonir.welcome.php"
+        ]
+    },
+    "require": {
+        "phpmailer/phpmailer": "^6.1",
+        "twig/twig": "3.0"
+        }
+}

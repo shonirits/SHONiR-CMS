@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bullet Navigator Example - Jssor Slider</title>
+</head>
+<body style="font-family:Arial, Verdana;background-color:#fff;">
+    <!-- Jssor Slider Begin -->
+    <script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../js/jssor.slider.min.js"></script>
+    <script>
+        $(document).ready(function ($) {
+            var options = {
+                $DragOrientation: 3,                                //[Optional] Orientation to drag slide, 0 no drag, 1 horizental, 2 vertical, 3 either, default value is 1 (Note that the $DragOrientation should be the same as $PlayOrientation when $Cols is greater than 1, or parking position is not 0)
+
+                $BulletNavigatorOptions: {                                //[Optional] Options to specify and enable navigator or not
+                    $Class: $JssorBulletNavigator$,                       //[Required] Class to create navigator instance
+                    $ChanceToShow: 2,                               //[Required] 0 Never, 1 Mouse Over, 2 Always
+                    $ActionMode: 1,                                 //[Optional] 0 None, 1 act by click, 2 act by mouse hover, 3 both, default value is 1
+                    $Steps: 1,                                      //[Optional] Steps to go for each navigation request, default value is 1
+                    $Rows: 1,                                      //[Optional] Specify lanes to arrange items, default value is 1
+                    $SpacingX: 0,                                   //[Optional] Horizontal space between each item in pixel, default value is 0
+                    $SpacingY: 10,                                   //[Optional] Vertical space between each item in pixel, default value is 0
+                    $Orientation: 1                                 //[Optional] The orientation of the navigator, 1 horizontal, 2 vertical, default value is 1
+                }
+            };
+            var jssor_slider1 = new $JssorSlider$('slider1_container', options);
+        });
+    </script>
+    
+    <div id="slider1_container" style="position: relative; top: 0px; left: 0px; width: 600px;
+        height: 300px;">
+        <!-- Loading Screen -->
+        <div data-u="loading" class="jssorl-009-spin" style="position:absolute;top:0px;left:0px;width:100%;height:100%;text-align:center;background-color:rgba(0,0,0,0.7);">
+            <img style="margin-top:-19px;position:relative;top:50%;width:38px;height:38px;" src="../svg/loading/static-svg/spin.svg" />
+        </div>
+
+        <!-- Slides Container -->
+        <div data-u="slides" style="position: absolute; left: 0px; top: 0px; width: 600px; height: 300px;
+            overflow: hidden;">
+            <div><img data-u="image" src="../img/gallery/980x380/001.jpg" /></div>
+            <div><img data-u="image" src="../img/gallery/980x380/002.jpg" /></div>
+            <div><img data-u="image" src="../img/gallery/980x380/003.jpg" /></div>
+            <div><img data-u="image" src="../img/gallery/980x380/004.jpg" /></div>
+            <div><img data-u="image" src="../img/gallery/980x380/005.jpg" /></div>
+            <div><img data-u="image" src="../img/gallery/980x380/006.jpg" /></div>
+            <div><img data-u="image" src="../img/gallery/980x380/007.jpg" /></div>
+            <div><img data-u="image" src="../img/gallery/980x380/008.jpg" /></div>
+        </div>
+        
+        <!--#region Bullet Navigator Skin Begin -->
+        <!-- Help: https://www.jssor.com/development/slider-with-bullet-navigator.html -->
+        <style>
+            .jssorb051 .i {position:absolute;cursor:pointer;}
+            .jssorb051 .i .b {fill:#fff;fill-opacity:0.5;stroke:#000;stroke-width:400;stroke-miterlimit:10;stroke-opacity:0.5;}
+            .jssorb051 .i:hover .b {fill-opacity:.7;}
+            .jssorb051 .iav .b {fill-opacity: 1;}
+            .jssorb051 .i.idn {opacity:.3;}
+        </style>
+        <div data-u="navigator" class="jssorb051" style="position:absolute;bottom:12px;right:12px;" data-autocenter="1" data-scale="0.5" data-scale-bottom="0.75">
+            <div data-u="prototype" class="i" style="width:16px;height:16px;">
+                <svg viewBox="0 0 16000 16000" style="position:absolute;top:0;left:0;width:100%;height:100%;">
+                    <circle class="b" cx="8000" cy="8000" r="5800"></circle>
+                </svg>
+            </div>
+        </div>
+        <!--#endregion Bullet Navigator Skin End -->
+    </div>
+    <!-- Jssor Slider End -->
+</body>
+</html>
