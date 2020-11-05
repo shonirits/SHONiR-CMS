@@ -82,7 +82,7 @@ function SHONiR_Tax_Fnc($SHONiR_Amount){
 
 }
 
-function SHONiR_New_Order_Fnc($Products, $SHONiR_ship_name, $SHONiR_ship_email, $SHONiR_ship_cell, $SHONiR_ship_address1, $SHONiR_ship_address2, $SHONiR_ship_postcode, $SHONiR_ship_country_id, $SHONiR_ship_region_id, $SHONiR_ship_city_id, $SHONiR_bill_name, $SHONiR_bill_email, $SHONiR_bill_cell, $SHONiR_bill_address1, $SHONiR_bill_address2, $SHONiR_bill_postcode, $SHONiR_bill_country_id, $SHONiR_bill_region_id, $SHONiR_bill_city_id, $SHONiR_shipping_method, $SHONiR_payment_method, $SHONiR_gift_cover, $SHONiR_tag_card, $SHONiR_tag_card_text, $SHONiR_user_id, $SHONiR_user_type, $SHONiR_user_comments){
+function SHONiR_New_Order_Fnc($Products, $SHONiR_ship_name, $SHONiR_ship_company, $SHONiR_ship_email, $SHONiR_ship_cell, $SHONiR_ship_address1, $SHONiR_ship_address2, $SHONiR_ship_postcode, $SHONiR_ship_country_id, $SHONiR_ship_region_id, $SHONiR_ship_city_id, $SHONiR_bill_name, $SHONiR_bill_company, $SHONiR_bill_email, $SHONiR_bill_cell, $SHONiR_bill_address1, $SHONiR_bill_address2, $SHONiR_bill_postcode, $SHONiR_bill_country_id, $SHONiR_bill_region_id, $SHONiR_bill_city_id, $SHONiR_shipping_method, $SHONiR_payment_method, $SHONiR_gift_cover = 0, $SHONiR_tag_card = 0, $SHONiR_tag_card_text, $SHONiR_user_id, $SHONiR_user_type, $SHONiR_user_comments, $SHONiR_contract_term, $SHONiR_freight_forwarding, $SHONiR_product_history){
 
     
 
@@ -108,12 +108,23 @@ function SHONiR_New_Order_Fnc($Products, $SHONiR_ship_name, $SHONiR_ship_email, 
     $SHONiR_shippable = 1;
 
     if($SHONiR_tag_card){
+
     $SHONiR_tag_card_price = 250;
+
+    }else{
+
+        $SHONiR_tag_card = 0;
     }
 
     if($SHONiR_gift_cover){
+
     $SHONiR_gift_cover_price = 250;
-    }     
+
+    }else{
+
+        $SHONiR_gift_cover = 0;
+    }
+    
 
     $SHONiR_Shipping = SHONiR_Shipping_Fnc($SHONiR_Sub_Total+$SHONiR_tag_card_price+$SHONiR_gift_cover_price);
     $SHONiR_Tax = SHONiR_Tax_Fnc($SHONiR_Shipping+$SHONiR_Sub_Total+$SHONiR_tag_card_price+$SHONiR_gift_cover_price);
@@ -125,7 +136,7 @@ function SHONiR_New_Order_Fnc($Products, $SHONiR_ship_name, $SHONiR_ship_email, 
     $SHONiR_ship_address = ($SHONiR_ship_address2)?$SHONiR_ship_address1.'<br/>'.$SHONiR_ship_address2:$SHONiR_ship_address1;
 
     
-    SHONiR_Query_Fnc("insert into tbl_orders (order_no, language_id, currency_id, reference, add_time, user_comments, subtotal, tax, shipping, grandtotal, items, quantity, bill_address, bill_email, bill_cell, bill_name, ship_address, ship_email, ship_cell, ship_name, add_ip, taxable, shippable, gift_cover, tag_card, tag_card_text, tag_card_price, gift_cover_price, bill_postcode, bill_country_id, bill_region_id, bill_city_id, ship_postcode, ship_country_id, ship_region_id, ship_city_id) values ('".$SHONiR_Order."', ".SHONiR_LANGUAGE['language_id'].", ".SHONiR_CURRENCY['currency_id'].", '".$SHONiR_Reference."', ".time().", '".$SHONiR_user_comments."', '".$SHONiR_Sub_Total."', '".$SHONiR_Tax."', '".$SHONiR_Shipping."', '".$SHONiR_Grand_Total."', ".$SHONiR_Total_Items.", ".$SHONiR_Total_Quantity.", '".$SHONiR_bill_address."', '".$SHONiR_bill_email."', '".$SHONiR_bill_cell."', '".$SHONiR_bill_name."', '".$SHONiR_ship_address."', '".$SHONiR_ship_email."', '".$SHONiR_ship_cell."', '".$SHONiR_ship_name."', '".SHONiR_IP_Fnc()."', ".$SHONiR_taxable.", ".$SHONiR_shippable.", ".$SHONiR_gift_cover.", ".$SHONiR_tag_card.", '".$SHONiR_tag_card_text."', '".$SHONiR_tag_card_price."', '".$SHONiR_gift_cover_price."',  '".$SHONiR_bill_postcode."', ".$SHONiR_bill_country_id.", ".$SHONiR_bill_region_id.", ".$SHONiR_bill_city_id.",  '".$SHONiR_ship_postcode."', ".$SHONiR_ship_country_id.", ".$SHONiR_ship_region_id.", ".$SHONiR_ship_city_id.")");
+    SHONiR_Query_Fnc("insert into tbl_orders (order_no, language_id, currency_id, reference, add_time, user_comments, subtotal, tax, shipping, grandtotal, items, quantity, bill_address, bill_email, bill_cell, bill_name, bill_company, ship_address, ship_email, ship_cell, ship_name, ship_company, add_ip, taxable, shippable, gift_cover, tag_card, tag_card_text, tag_card_price, gift_cover_price, bill_postcode, bill_country_id, bill_region_id, bill_city_id, ship_postcode, ship_country_id, ship_region_id, ship_city_id, user_id, user_type, contract_term, freight_forwarding, history) values ('".$SHONiR_Order."', ".SHONiR_LANGUAGE['language_id'].", ".SHONiR_CURRENCY['currency_id'].", '".$SHONiR_Reference."', ".time().", '".$SHONiR_user_comments."', '".$SHONiR_Sub_Total."', '".$SHONiR_Tax."', '".$SHONiR_Shipping."', '".$SHONiR_Grand_Total."', ".$SHONiR_Total_Items.", ".$SHONiR_Total_Quantity.", '".$SHONiR_bill_address."', '".$SHONiR_bill_email."', '".$SHONiR_bill_cell."', '".$SHONiR_bill_name."', '".$SHONiR_bill_company."', '".$SHONiR_ship_address."', '".$SHONiR_ship_email."', '".$SHONiR_ship_cell."', '".$SHONiR_ship_name."', '".$SHONiR_ship_company."', '".SHONiR_IP_Fnc()."', ".$SHONiR_taxable.", ".$SHONiR_shippable.", ".$SHONiR_gift_cover.", ".$SHONiR_tag_card.", '".$SHONiR_tag_card_text."', '".$SHONiR_tag_card_price."', '".$SHONiR_gift_cover_price."',  '".$SHONiR_bill_postcode."', ".$SHONiR_bill_country_id.", ".$SHONiR_bill_region_id.", ".$SHONiR_bill_city_id.",  '".$SHONiR_ship_postcode."', ".$SHONiR_ship_country_id.", ".$SHONiR_ship_region_id.", ".$SHONiR_ship_city_id.", ".$SHONiR_user_id.", ".$SHONiR_user_type.", '".$SHONiR_contract_term."', '".$SHONiR_freight_forwarding."', ".$SHONiR_product_history.")");
 
     $SHONiR_order_id = SHONiR_Insert_ID_Fnc();
     
@@ -135,6 +146,7 @@ function SHONiR_New_Order_Fnc($Products, $SHONiR_ship_name, $SHONiR_ship_email, 
 
 $SHONiR_order_product_id = SHONiR_Insert_ID_Fnc();
 
+if($SHONiR_product_history == 1){
 
 $SHONiR_Product_Uploads = $Products[$key]['uploads'];
 
@@ -153,6 +165,8 @@ SHONiR_Query_Fnc("insert into tbl_uploads (upload_file, sort_order, parent_id, p
 copy(SHONiR_ROOT.'media/uploads/'.$upload_value['upload_file'], SHONiR_ROOT.'cache/uploads/'.$SHONiR_new_file); 
 
 } 
+
+}
 
 }
 
@@ -188,7 +202,7 @@ $SHONiR_region = $SHONiR_region[0]['name'];
 $SHONiR_city = SHONiR_Cities_Fnc(SHONiR_SETTINGS['website_city_id']);
 $SHONiR_city = $SHONiR_city[0]['name'];
 
-$SHONiR_Array = [ 'products' => $Products, 'gift_cover' => $SHONiR_gift_cover, 'tag_card' => $SHONiR_tag_card, 'gift_cover_price' => $SHONiR_gift_cover_price, 'tag_card_price' => $SHONiR_tag_card_price, 'tag_card_text' => $SHONiR_tag_card_text,  'sub_total' => $SHONiR_Sub_Total, 'shipping' => $SHONiR_Shipping, 'tax' => $SHONiR_Tax, 'grand_total' => $SHONiR_Grand_Total, 'bill_address' => $SHONiR_bill_address, 'bill_postcode' => $SHONiR_bill_postcode, 'bill_email' => $SHONiR_bill_email, 'bill_cell' => $SHONiR_bill_cell, 'bill_name' => $SHONiR_bill_name, 'bill_country' => $SHONiR_bill_country, 'bill_region' => $SHONiR_bill_region, 'bill_city' => $SHONiR_bill_city, 'ship_address' => $SHONiR_ship_address, 'ship_postcode' => $SHONiR_ship_postcode, 'ship_email' => $SHONiR_ship_email, 'ship_cell' => $SHONiR_ship_cell, 'ship_name' => $SHONiR_ship_name, 'ship_country' => $SHONiR_ship_country, 'ship_region' => $SHONiR_ship_region, 'ship_city' => $SHONiR_ship_city, 'currency' => SHONiR_CURRENCY['name'], 'user_comments' => $SHONiR_user_comments, 'ip' => SHONiR_IP_Fnc(), 'time' => time(), 'status' => 'Pending', 'number' => $SHONiR_Order, 'reference' => $SHONiR_Reference, 'base_url' => SHONiR_BASE, 'logo' => SHONiR_SETTINGS['config_logo'], 'company' => SHONiR_SETTINGS['website_company'], 'email' => SHONiR_SETTINGS['website_email'], 'website' => SHONiR_SETTINGS['website_url'], 'telephone' => SHONiR_SETTINGS['website_telephone'], 'whatsapp' => 'https://wa.me/92'.SHONiR_Get_Number_Fnc(SHONiR_SETTINGS['website_telephone']), 'address' => SHONiR_SETTINGS['website_address'], 'city' => $SHONiR_city, 'postcode' => SHONiR_SETTINGS['website_postcode'], 'region' => $SHONiR_region, 'country' => $SHONiR_country, 'payment_method' => '123', 'shipping_method' => '123'];
+$SHONiR_Array = [ 'products' => $Products, 'gift_cover' => $SHONiR_gift_cover, 'tag_card' => $SHONiR_tag_card, 'gift_cover_price' => $SHONiR_gift_cover_price, 'tag_card_price' => $SHONiR_tag_card_price, 'tag_card_text' => $SHONiR_tag_card_text, 'quantity' => $SHONiR_Total_Quantity, 'items' => $SHONiR_Total_Items, 'sub_total' => $SHONiR_Sub_Total, 'shipping' => $SHONiR_Shipping, 'tax' => $SHONiR_Tax, 'grand_total' => $SHONiR_Grand_Total, 'bill_address' => $SHONiR_bill_address, 'bill_postcode' => $SHONiR_bill_postcode, 'bill_email' => $SHONiR_bill_email, 'bill_cell' => $SHONiR_bill_cell, 'bill_name' => $SHONiR_bill_name, 'bill_company' => $SHONiR_bill_company, 'bill_country' => $SHONiR_bill_country, 'bill_region' => $SHONiR_bill_region, 'bill_city' => $SHONiR_bill_city, 'ship_address' => $SHONiR_ship_address, 'ship_postcode' => $SHONiR_ship_postcode, 'ship_email' => $SHONiR_ship_email, 'ship_cell' => $SHONiR_ship_cell, 'ship_name' => $SHONiR_ship_name, 'ship_company' => $SHONiR_ship_company, 'ship_country' => $SHONiR_ship_country, 'ship_region' => $SHONiR_ship_region, 'ship_city' => $SHONiR_ship_city, 'currency' => SHONiR_CURRENCY['name'], 'user_comments' => $SHONiR_user_comments, 'contract_term' => $SHONiR_contract_term, 'freight_forwarding' => $SHONiR_freight_forwarding, 'ip' => SHONiR_IP_Fnc(), 'time' => time(), 'status' => 'Pending', 'number' => $SHONiR_Order, 'reference' => $SHONiR_Reference, 'base_url' => SHONiR_BASE, 'logo' => SHONiR_SETTINGS['config_logo'], 'company' => SHONiR_SETTINGS['website_company'], 'email' => SHONiR_SETTINGS['website_email'], 'website' => SHONiR_SETTINGS['website_url'], 'telephone' => SHONiR_SETTINGS['website_telephone'], 'whatsapp' => 'https://wa.me/92'.SHONiR_Get_Number_Fnc(SHONiR_SETTINGS['website_telephone']), 'address' => SHONiR_SETTINGS['website_address'], 'city' => $SHONiR_city, 'postcode' => SHONiR_SETTINGS['website_postcode'], 'region' => $SHONiR_region, 'country' => $SHONiR_country, 'payment_method' => $SHONiR_payment_method, 'shipping_method' => $SHONiR_shipping_method];
 
     $SHONiR_Message = SHONiR_Template_Fnc('order.tpl', $SHONiR_Array);
 
@@ -198,7 +212,7 @@ $SHONiR_Array = [ 'products' => $Products, 'gift_cover' => $SHONiR_gift_cover, '
     
     if($SHONiR_ship_email != $SHONiR_bill_email){
     
-    SHONiR_Mail_Fnc_Render($SHONiR_ship_email, $SHONiR_ship_name, 'Copy of '.$SHONiR_Subject, $SHONiR_Message);
+   SHONiR_Mail_Fnc_Render($SHONiR_ship_email, $SHONiR_ship_name, 'Copy of '.$SHONiR_Subject, $SHONiR_Message);
     
     }
 
@@ -239,9 +253,9 @@ function SHONiR_AP_Orders_Fnc_Render(){
 
     }
 
-    $SHONiR_Get_Order_Records = SHONiR_Get_Order_Fnc($SHONiR_Get_order_id);
+    $SHONiR__Order_Details = SHONiR_Order_Details_Fnc($SHONiR_Get_order_id);
 
-            if(!$SHONiR_Get_Order_Records){
+            if(!$SHONiR__Order_Details){
 
                 $SHONiR_Alert['type'] = 'error';
             $SHONiR_Alert['message'] = 'The requested record was not found.';
@@ -250,6 +264,7 @@ function SHONiR_AP_Orders_Fnc_Render(){
     
                }
 
+    $SHONiR_Main['SHONiR_Order_Details'] = $SHONiR__Order_Details;
 
     $SHONiR_Main['meta_title'] = 'Edit | Orders | SHONiR Administrator Panel | Created with LOVE by SHONiR';
 
@@ -311,6 +326,80 @@ function SHONiR_Get_Order_Fnc($SHONiR_Value, $SHONiR_Column = 'order_id', $SHONi
 
 
 }
+
+function SHONiR_Order_Details_Fnc($SHONiR_Value, $SHONiR_Column = 'order_id', $SHONiR_Where = null, $SHONiR_Count = FALSE, $SHONiR_History = FALSE){
+
+    $SHONiR_Data = array();
+
+    if(!$SHONiR_Value){
+
+        return false;
+
+    }
+
+    $SHONiR_Get_Order = SHONiR_Get_Order_Fnc($SHONiR_Value, $SHONiR_Column, $SHONiR_Where);
+
+            if(!$SHONiR_Get_Order){
+
+                return false;
+    
+               }
+
+$SHONiR_Data['thref'] = SHONiR_BASE.'Orders/track/'.$SHONiR_Get_Order['reference'];
+
+ $SHONiR_Query_Run_Products = "select * from tbl_orders_products where order_id=".$SHONiR_Get_Order['order_id'] ;
+
+ $SHONiR_Query_Products = SHONiR_Query_Fnc($SHONiR_Query_Run_Products);
+
+ $SHONiR_Row_Products = SHONiR_Row_Fnc($SHONiR_Query_Products);
+
+ if($SHONiR_Row_Products > 0 ){
+
+    while($row =  SHONiR_Fetch_Fnc($SHONiR_Query_Products))
+    {
+
+        $SHONiR_More['image2'] = '';
+
+        $SHONiR_Product_Uploads = SHONiR_Uploads_Fnc($row['product_id'], 'product');
+    
+        if($SHONiR_Product_Uploads){
+    
+            $SHONiR_More['image'] = (SHONiR_SETTINGS['config_auto_watermark']=="TRUE")?$SHONiR_Product_Uploads[0]['upload_id']:$SHONiR_Product_Uploads[0]['upload_file'];       
+    
+            if(count($SHONiR_Product_Uploads) > 1){            
+    
+                $SHONiR_More['image2'] = (SHONiR_SETTINGS['config_auto_watermark']=="TRUE")?$SHONiR_Product_Uploads[1]['upload_id']:$SHONiR_Product_Uploads[1]['upload_file'];
+            }else{
+    
+                unset($SHONiR_More['image2']);
+            }
+    
+         }else{
+    
+            $SHONiR_More['image'] = 'n-a.png';
+    
+         }
+    
+         $SHONiR_More['href'] =  SHONiR_Product_Href_Fnc($row['product_id'], $row['slug']);
+    
+         $SHONiR_More['qhref'] =  SHONiR_Product_Href_Fnc($row['product_id'], $row['slug'], 'Quick');
+
+         $SHONiR_Data['Products'][] = array_merge($row,$SHONiR_More);
+
+    }
+
+ }
+
+
+
+
+               $SHONiR_Data['Order'] = $SHONiR_Get_Order;
+
+               return $SHONiR_Data;
+
+
+
+ }
 
 
 

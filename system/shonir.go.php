@@ -22,7 +22,34 @@ function SHONiR_Go_Fnc_Render(){
             echo '<b>Oops... Page Not Found!</b>  <p>We\'re sorry, but the page you were looking for doesn\'t exist.</p>';
 
         }
+    }elseif($SHONiR_Second === "Or" && $SHONiR_Third){
 
+        $SHONiR_Order_Details = SHONiR_Order_Details_Fnc($SHONiR_Third, 'reference');
+
+        if($SHONiR_Order_Details){
+
+            SHONiR_Redirect_Fnc($SHONiR_Order_Details['thref']);
+
+
+        }else{
+
+            echo '<b>Oops... Page Not Found!</b>  <p>We\'re sorry, but the page you were looking for doesn\'t exist.</p>';
+
+        }
+
+    }elseif($SHONiR_Second === "Br" && $SHONiR_ID){
+
+        $SHONiR_Banner_Details = SHONiR_Banner_Details_Fnc($SHONiR_ID, ' and status=1', SHONiR_LANGUAGE['language_id']);
+
+        if($SHONiR_Banner_Details){
+
+            SHONiR_Redirect_Fnc($SHONiR_Banner_Details['link']);
+
+        }else{
+
+            echo '<b>Oops... Page Not Found!</b>  <p>We\'re sorry, but the page you were looking for doesn\'t exist.</p>';
+
+        }
 
     }elseif($SHONiR_Second === "Pa" && $SHONiR_ID){
 

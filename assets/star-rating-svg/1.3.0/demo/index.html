@@ -1,0 +1,311 @@
+<DOCTYPE html>
+<html>
+<head>
+    <title>starRating, star rating jquery plugin</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
+    <link rel="stylesheet" type="text/css" href="../src/css/star-rating-svg.css">
+    <link rel="stylesheet" type="text/css" href="css/demo.css">
+
+</head>
+<body>
+
+<div class="content">
+<div class="logo">
+	<img src="img/star-rating-svg-logo.png" alt="star-rating-svg-logo" />
+</div>
+<h4>star-rating-svg.js</h4>
+<div class="info"><a href="https://github.com/nashio/star-rating-svg/">Github</a>&nbsp;/&nbsp;v.1.3.0
+<iframe src="https://ghbtns.com/github-btn.html?user=nashio&repo=star-rating-svg&type=star&count=true&size=medium" frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
+</div>
+
+<h2>examples</h2>
+
+
+<!-- example with label -->
+<h4>Basic implementation</h4>
+<div class="my-rating jq-stars"></div>
+
+<pre class="pre-show prettyprint">
+&lt;div class="my-rating">&lt;/div&gt;
+</pre>
+
+<pre class="pre-show prettyprint">
+$(".my-rating").starRating({
+  initialRating: 4,
+  strokeColor: '#894A00',
+  strokeWidth: 10,
+  starSize: 25
+});
+</pre>
+
+<hr>
+
+
+<h4>Rounded star shape</h4>
+
+<!-- example grabing rating from markup -->
+<div class="my-rating-4" data-rating="2.5"></div>
+
+<pre class="pre-show prettyprint">
+&lt;div&gt; class="my-rating-4" data-rating="2.5">&lt;/div&gt;
+</pre>
+
+
+<pre class="pre-show prettyprint">
+$(".my-rating-4").starRating({
+  totalStars: 5,
+  starShape: 'rounded',
+  starSize: 40,
+  emptyColor: 'lightgray',
+  hoverColor: 'salmon',
+  activeColor: 'crimson',
+  useGradient: false
+});
+</pre>
+
+<hr>
+
+<h4>Use gradients</h4>
+
+<!-- example using gradient -->
+<div class="my-rating-5" data-rating="3.3"></div>
+
+<pre class="pre-show prettyprint">
+&lt;div&gt; class="my-rating-5">&lt;/div&gt;
+</pre>
+
+
+
+<pre class="pre-show prettyprint">
+// specify the gradient start and end for the selected stars
+$(".my-rating-5").starRating({
+  starSize: 80,
+  strokeWidth: 9,
+  strokeColor: 'black',
+  initialRating: 2,
+  starGradient: {
+      start: '#93BFE2',
+      end: '#105694'
+  }
+});
+</pre>
+
+<hr>
+
+<h4>Execute callback when rating</h4>
+
+<!-- example using callback -->
+<div class="my-rating-6"></div>
+
+<pre class="pre-show prettyprint">
+&lt;div&gt; class="my-rating-6">&lt;/div&gt;
+</pre>
+
+
+<pre class="pre-show prettyprint">
+$(".my-rating-6").starRating({
+  totalStars: 5,
+  emptyColor: 'lightgray',
+  hoverColor: 'salmon',
+  activeColor: 'cornflowerblue',
+  initialRating: 4,
+  strokeWidth: 0,
+  useGradient: false,
+  minRating: 1,
+  callback: function(currentRating, $el){
+      alert('rated ', currentRating);
+      console.log('DOM element ', $el);
+  }
+});
+</pre>
+
+<hr>
+
+<h4>read only mode</h4>
+
+<!-- example read-only -->
+<div class="my-rating-7"></div>
+
+<pre class="pre-show prettyprint">
+&lt;div&gt; class="my-rating-7">&lt;/div&gt;
+</pre>
+
+
+<pre class="pre-show prettyprint">
+$(".my-rating-7").starRating({
+  readOnly: true
+});
+</pre>
+
+<hr>
+
+<!-- example fullstars -->
+
+<h4>Use fullstars</h4>
+
+<div class="my-rating-8"></div>
+
+<pre class="pre-show prettyprint">
+// use full stars only
+&lt;div&gt; class="my-rating-8">&lt;/div&gt;
+</pre>
+
+
+<pre class="pre-show prettyprint">
+$(".my-rating-8").starRating({
+  useFullStars: true
+});
+</pre>
+
+<hr>
+
+<h4>On hover event</h4>
+
+<pre class="pre-show prettyprint">
+&lt;span&gt; class="my-rating-9">&lt;/span&gt;
+&lt;span&gt; class="live-rating">&lt;/span&gt;
+</pre>
+
+<!-- example using callback -->
+<span class="my-rating-9"></span>
+<span class="live-rating"></span>
+
+<pre class="pre-show prettyprint">
+  $(".my-rating-9").starRating({
+    initialRating: 3.5,
+    disableAfterRate: false,
+    onHover: function(currentIndex, currentRating, $el){
+      $('.live-rating').text(currentIndex);
+    },
+    onLeave: function(currentIndex, currentRating, $el){
+      $('.live-rating').text(currentRating);
+    }
+  });
+</pre>
+
+
+<h4>rating level colors</h4>
+
+<!-- example using level colors -->
+<div class="my-rating-10"></div>
+
+<pre class="pre-show prettyprint">
+&lt;div&gt; class="my-rating-10">&lt;/div&gt;
+</pre>
+
+
+
+<pre class="pre-show prettyprint">
+// specify the color per rating level
+$(".my-rating-10").starRating({
+  starSize: 80,
+  strokeWidth: 9,
+  strokeColor: 'black',
+  ratedColors: ['#e2c181', '#ffa700', '#c4573e', '#9a321a', '#5e1e0f']
+  initialRating: 2,
+});
+</pre>
+
+<hr>
+
+<div class="options">
+    See options @ <a href="https://github.com/nashio/star-rating-svg/">github</a>
+</div>
+
+
+<script>
+$(function() {
+
+  // basic use comes with defaults values
+  $(".my-rating").starRating({
+    initialRating: 4.0,
+    starSize: 25
+  });
+
+  $(".my-rating-2").starRating({
+    totalStars: 5,
+    starSize: 30,
+    starShape: 'rounded',
+    emptyColor: 'lightgray',
+    hoverColor: 'salmon',
+    activeColor: 'crimson',
+    useGradient: false
+  });
+
+  // example grabing rating from markup, and custom colors
+  $(".my-rating-4").starRating({
+    totalStars: 5,
+    starShape: 'rounded',
+    starSize: 40,
+    emptyColor: 'lightgray',
+    hoverColor: 'salmon',
+    activeColor: 'crimson',
+    useGradient: false
+  });
+
+  // specify the gradient start and end for the selected stars
+  $(".my-rating-5").starRating({
+    starSize: 80,
+    strokeWidth: 10,
+    strokeColor: 'black',
+    initialRating: 2,
+    starGradient: {
+      start: '#93BFE2',
+      end: '#105694'
+    },
+  });
+
+  $(".my-rating-6").starRating({
+    totalStars: 5,
+    emptyColor: 'lightgray',
+    hoverColor: 'slategray',
+    activeColor: 'cornflowerblue',
+    initialRating: 4,
+    strokeWidth: 0,
+    useGradient: false,
+    minRating: 2,
+    callback: function(currentRating, $el){
+      alert('rated ' +  currentRating);
+      console.log('DOM Element ', $el);
+    }
+  });
+
+  $(".my-rating-7").starRating({
+    initialRating: 4,
+    readOnly: true,
+    starShape: 'rounded'
+  });
+
+  $(".my-rating-8").starRating({
+    useFullStars: true
+  });
+
+  $(".my-rating-9").starRating({
+    initialRating: 3.5,
+    disableAfterRate: false,
+    onHover: function(currentIndex, currentRating, $el){
+      console.log('index: ', currentIndex, 'currentRating: ', currentRating, ' DOM element ', $el);
+      $('.live-rating').text(currentIndex);
+    },
+    onLeave: function(currentIndex, currentRating, $el){
+      console.log('index: ', currentIndex, 'currentRating: ', currentRating, ' DOM element ', $el);
+      $('.live-rating').text(currentRating);
+    }
+  });
+
+  $(".my-rating-10").starRating({
+    initialRating: 2,
+    starSize: 80,
+    strokeWidth: 9,
+    strokeColor: 'black',
+    ratedColors: ['#e2c181', '#ffa700', '#c4573e', '#9a321a', '#5e1e0f']
+  });
+
+});
+</script>
+<script src="../src/jquery.star-rating-svg.js"></script>
+</body>
+</html>
+
+

@@ -33,7 +33,7 @@ return $SHONiR_Data;
 
 }
 
-function SHONiR_Pages_Menu_Fnc($SHONiR_Array, $SHONiR_Level=1){
+function SHONiR_Pages_Menu_Fnc($SHONiR_Array, $SHONiR_Level=1, $SHONiR_Class=TRUE){
 
     $SHONiR_Data ='';
     $SHONiR_Level++;
@@ -48,22 +48,24 @@ function SHONiR_Pages_Menu_Fnc($SHONiR_Array, $SHONiR_Level=1){
 
             if($SHONiR_Level==1)
             {
-                
+                if($SHONiR_Class){
                 $SHONiR_LI_Class =    'nav-item dropdown';
                 $SHONiR_Href_Class =    'nav-link';
+                }
 
             }else{
 
+                if($SHONiR_Class){
                 $SHONiR_LI_Class =    'dropdown-submenu';
                 $SHONiR_Href_Class =    'dropdown-item';
-
+                }
 
             }
             
             $SHONiR_Data .= '<li class="'.$SHONiR_LI_Class.'">';
             $SHONiR_Data .= '<a id="dropdownMenu'.$SHONiR_Level.'" href="'.SHONiR_BASE.'Pages/'.$Array_value['page_id'].'_'.$Array_value['slug'].'.'.SHONiR_SETTINGS['config_extension'].'" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="'.$SHONiR_Href_Class.' dropdown-toggle">'.$Array_value['name'].'</a>';
             $SHONiR_Data .= '<ul aria-labelledby="dropdownMenu'.$SHONiR_Level.'" class="dropdown-menu border-0 shadow">';
-            $SHONiR_Data .= SHONiR_Pages_Menu_Fnc($Array_value['child'], $SHONiR_Level);
+            $SHONiR_Data .= SHONiR_Pages_Menu_Fnc($Array_value['child'], $SHONiR_Level, $SHONiR_Class);
             $SHONiR_Data .= '</li>';
             $SHONiR_Data .= '</ul>';
 
@@ -71,15 +73,16 @@ function SHONiR_Pages_Menu_Fnc($SHONiR_Array, $SHONiR_Level=1){
 
             if($SHONiR_Level==1)
             {
-                
+                if($SHONiR_Class){
                 $SHONiR_LI_Class =    'nav-item';
                 $SHONiR_Href_Class =    'nav-link';
+                }
 
             }else{
-
+                if($SHONiR_Class){
                 $SHONiR_LI_Class =    '';
                 $SHONiR_Href_Class =    'dropdown-item';
-
+                }
 
             }
 
@@ -940,10 +943,13 @@ function SHONiR_Pages_Fnc_Render(){
 
     $SHONiR_Data["Recently_Viewed_Products"] = SHONiR_Get_Products_Fnc(TRUE, 0, "p.status=1 and p.listed=1", "p.last_hit", "desc", SHONiR_SETTINGS['config_records_limit']);
 
+    $SHONiR_Data["Main_Banners"] = SHONiR_Get_Banners_Fnc(TRUE, TRUE, "parent_id='page_".$SHONiR_ID."' and b.status=1  and b.listed=1 ", 'b.viewed', 'asc');
+
+
 
     if(!$SHONiR_Page_Details){
 
-        $SHONiR_Main['meta_title'] = 'Pages | SHONiR Administrator Panel | Created with LOVE by SHONiR';
+        $SHONiR_Main['meta_title'] = 'Pages | SHONiR CMS | Created with LOVE by SHONiR';
 
     $SHONiR_Main['meta_description'] = '';
     

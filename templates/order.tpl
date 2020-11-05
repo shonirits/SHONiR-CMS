@@ -11,12 +11,12 @@
                     Address: {{address|raw}}<br/>
                     {{city}} - {{postcode}}, {{region}}, {{country}}</p>
             </th>
-              <th style="width:50%;text-align:right;font-size: 10px;font-weight:400;"><strong style="font-size: 18px;">Purchase Order</strong>
+              <th style="width:50%;text-align:right;font-size: 10px;font-weight:400;"><strong style="font-size: 18px;">Enquiry</strong>
                 <br/>
-                <a href="{{base_url}}Orders/track/{{reference}}" title="Track Order"><img src="{{base_url}}Code/bar/code128/{{reference}}"  border="0" alt="Track Order" height="59" style="margin:5px 0 0 0;" /></a>
+                <img src="{{base_url}}Code/bar/code128/{{reference}}"  border="0" alt="Track Order" height="59" style="margin:5px 0 0 0;" />
             <br/>
-            Date: {{time|date("l, F t, Y")}}<br />
-            Order#: <a href="{{base_url}}Orders/track/{{reference}}" style="text-decoration: none;color:black;" title="Track Order">{{number}}</a><br />
+            Date: {{time|date("l, F d, Y")}}<br />
+            Order#: {{number}}<br />
             Order Status: <b>{{status}}</b>
             </th>
             </tr>
@@ -27,6 +27,7 @@
             </tr>
             <tr style="vertical-align: top;" valign="top">
                 <td><p  style="font-size:10px;text-align:left;margin:0 5px 0 0;padding:0 5px 0 0;"><strong style="font-size: 12px;">Bill To:</strong><br>
+               <b> {{bill_company}}</b><br />
                 Name: {{bill_name}}<br />
                Telephone: {{bill_cell}} <br />
                 Email: <a href="mailto:{{bill_email}}" style="text-decoration: none;color:black;">{{bill_email}}</a><br />
@@ -34,6 +35,7 @@
                     {{bill_city}} - {{bill_postcode}}, {{bill_region}}, {{bill_country}}
                    </p></td>
                 <td><p  style="font-size:10px;"><strong style="font-size: 12px;">Ship To:</strong><br>
+                <b> {{ship_company}}</b><br />
                   Name: {{ship_name}}<br />
                   Telephone: {{ship_cell}} <br />
                    Email: <a href="mailto:{{ship_email}}" style="text-decoration: none;color:black;">{{ship_email}}</a><br />
@@ -50,10 +52,10 @@
                     <thead>
                     <tr style="background-color: #BBB;font-size: 12px;">
                     <th style="width:7%">S#</th>
-                    <th style="text-align:left;">Description</th>
-                    <th style="width:16%">Unit Cost</th>
-                    <th style="width:10%">Qty</th>
-                    <th style="width:18%;text-align:right;">Total Price</th>
+                    <th style="text-align:left;" colspan="3">Description</th>
+                    <!--th style="width:16%">Unit Cost</th-->
+                    <th style="width:10%" style="text-align:right;">Qty</th>
+                    <!--th style="width:18%;text-align:right;">Total Price</th-->
                     </tr>
                   </thead>
                   <tbody style="border: solid 1px #aaa;">
@@ -62,15 +64,15 @@
                     {% set x = x+1 %}
                   <tr style="background-color: #EEE;font-size: 10px;">
     <td >{{loop.index}}.</td>
-    <td style="text-align:left;">
+    <td style="text-align:left;" colspan="3">
     <a href="{{base_url}}Go/Pr/{{product.product_id}}" style="text-decoration: none;color:black;">
     <strong>{{product.name}}</strong><br/>
-    Reference#: {{product.reference}}{{loop.length}}
+    Article#: {{product.model}}{{loop.length}}
     </a>
     </td>
-    <td>{{product.selling_price|write_price}}</td>
-    <td>{{product.quantity}}</td>
-    <td style="text-align:right;">{{(product.selling_price*product.quantity)|write_price}}</td>
+    <!--td>{{product.selling_price|write_price}}</td-->
+    <td style="text-align:right;">{{product.quantity}}</td>
+    <!--td style="text-align:right;">{{(product.selling_price*product.quantity)|write_price}}</td-->
     </tr> 
     {% endfor %}
     {% if gift_cover %}
@@ -104,13 +106,25 @@
 <tfoot style="border: solid 1px #fff;font-size: 10px;">
   <tr style="border: solid 1px #fff;font-size: 10px;">
     <td colspan="2" rowspan="7" style="border:solid 1px #fff;border-top: solid 1px #aaa;text-align:left;font-size: 20px;"><em><strong>Thank you!</strong></em></td>
-    <td colspan="2" style="border:solid 1px #fff;border-top: solid 1px #aaa;font-size:10px;text-align:right;">Sub Total:</td>
-    <td style="border:solid 1px #fff;border-top: solid 1px #aaa;font-size:10px;text-align:right;">{{sub_total|write_price}}</td>
+    <td colspan="2" style="border:solid 1px #fff;border-top: solid 1px #aaa;font-size:10px;text-align:right;"><!--Sub Total:--></td>
+    <td style="border:solid 1px #fff;border-top: solid 1px #aaa;font-size:10px;text-align:right;"><!--{{sub_total|write_price}}</td>
     </tr>
     <tr>
-        <td colspan="3" style="border:solid 1px #fff;font-size:10px"><hr align="center" noshade="noshade" color="#ddd" style="margin:0px;padding:0px" /></td>
+        <td colspan="3" style="border:solid 1px #fff;font-size:10px"><!--<hr align="center" noshade="noshade" color="#ddd" style="margin:0px;padding:0px" />--></td>
         </tr>
+
+      <tr style="border: solid 1px #fff;font-size: 10px;">
+      <td colspan="2" style="border:solid 1px #fff;font-size:10px;text-align:right;">Total Items:</td>
+      <td style="border:solid 1px #fff;font-size:10px;text-align:right;">{{items}}</td>
+      </tr>
     <tr style="border: solid 1px #fff;font-size: 10px;">
+      <td colspan="3" style="border:solid 1px #fff;font-size:10px"><hr align="center" noshade="noshade" color="#ddd" style="margin:0px;padding:0px" /></td>
+      </tr>
+    <tr style="border: solid 1px #fff;font-size: 10px;">
+      <td colspan="2" style="border:solid 1px #fff;font-size:10px;text-align:right;">Total Quantity:</td>
+      <td style="border:solid 1px #fff;font-size:10px;text-align:right;">{{quantity}}</td>
+      </tr>  
+    <!--tr style="border: solid 1px #fff;font-size: 10px;">
       <td colspan="2" style="border:solid 1px #fff;font-size:10px;text-align:right;">Shipping:</td>
       <td style="border:solid 1px #fff;font-size:10px;text-align:right;">{{shipping|write_price}}</td>
       </tr>
@@ -127,7 +141,7 @@
       <tr style="border: solid 1px #fff;font-size: 10px;">
         <td colspan="2" style="border:solid 1px #fff;font-size:10px;text-align:right;"><strong>Grand Total:</strong></td>
         <td style="border:solid 1px #fff;font-size:10px;text-align:right;"><strong>{{grand_total|write_price}}</strong></td>
-        </tr>
+        </tr-->
 </tfoot>
 
 
@@ -144,9 +158,9 @@
         <td ><p  style="font-size:10px;text-align:left;margin:0 5px 0 0;padding:0 5px 0 0;"><strong style="font-size: 12px;">Customer Comments:</strong><br />
           {{user_comments|raw}}</p></td>
         <td style="height:35px;text-align:left;"><p  style="font-size:10px;"><strong style="font-size: 12px;"> Other Information:</strong><br>
-          Currency: {{currency}}<br />
-          Payment Method: {{payment_method}} <br />
-          Shipping Method: {{shipping_method}}<br />
+         <!-- Currency: {{currency}}--><br />
+          Contract Term: {{contract_term}} <br />
+          Freight Forwarding: {{freight_forwarding}}<br />
           Reference#:  <a href="{{base_url}}Orders/track/{{reference}}" style="text-decoration: none;color:black;" title="Track Order">{{reference}}</a>
           
             </p></td>

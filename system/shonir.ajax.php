@@ -15,6 +15,7 @@ $SHONiR_last_try = time()-3600;
 $SHONiR_mail_sent = time()-10;
 $SHONiR_Error = FALSE;
 $SHONiR_Main_Rand = (bool)rand(0,1);
+$SHONiR_tmp_time = time()-(3600*12);
 
 
 /* $SHONiR_Query = SHONiR_Query_Fnc("select * from tbl_products order by product_id asc;");
@@ -35,6 +36,24 @@ SHONiR_Query_Fnc("update tbl_products set  reference ='". $SHONiR_Reference ."' 
 
 }
 exit; */
+
+
+$SHONiR_Query_Uploads = SHONiR_Query_Fnc("select * from tbl_uploads where  parent_type='tmp' and add_time<'".$SHONiR_tmp_time."' " );
+
+ $SHONiR_Row_Uploads = SHONiR_Row_Fnc($SHONiR_Query_Uploads);
+    
+      if($SHONiR_Row_Uploads > 0 ){
+    
+        while($SHONiR_Fetch_Uploads = SHONiR_Fetch_Fnc($SHONiR_Query_Uploads))
+        {                     
+              if (file_exists(SHONiR_ROOT.'media/tmp/'.$SHONiR_Fetch_Uploads['upload_file'])) { unlink (SHONiR_ROOT.'media/tmp/'.$SHONiR_Fetch_Uploads['upload_file']); }
+             
+              SHONiR_Query_Fnc("delete from tbl_uploads where upload_id=".$SHONiR_Fetch_Uploads['upload_id']);
+          
+          }
+
+        }
+
 
 if(SHONiR_SETTINGS['time_mail_sent']<$SHONiR_mail_sent && $SHONiR_Main_Rand == 1){
 
@@ -96,7 +115,6 @@ try {
 
 }
 
-
     if(SHONiR_Is_Ajax_Fnc() === FALSE){
        die("Access denied - Look like your request is unsecure or invalid. Please reload the page and try again.");
         }
@@ -116,10 +134,299 @@ try {
     $SHONiR_Password = SHONiR_Post_Fnc('password');
     $SHONiR_Remember = SHONiR_Post_Fnc('remember');
 
-    echo SHONiR_AP_Login_Fnc($SHONiR_Username, md5($SHONiR_Password), $SHONiR_Remember);
+    $SHONiR_Data = SHONiR_AP_Administrator_Fnc($SHONiR_Username, 'username');
+
+    if($SHONiR_Data){
+
+    echo SHONiR_AP_Login_Fnc($SHONiR_Data['administrator_id'], md5($SHONiR_Password), $SHONiR_Remember);
+
+    }else{
+
+      echo '<div class="alert alert-danger" role="alert"><b>Error:</b> Oops! Something went wrong. An unknown error occurred.</div>';
+
+    }
 
 
     $GLOBALS['SHONiR_RENDER'] = FALSE;
+  }elseif($SHONiR_Second == "Comments" && $SHONiR_Third == "Get" && $SHONiR_ID){
+
+    header('Content-type: application/json');
+
+    $GLOBALS['SHONiR_RENDER'] = FALSE;
+
+    $SHONiR_Order = SHONiR_Post_Fnc('o');
+
+    $SHONiR_Data = '';
+
+    $SHONiR_User_Class = '';
+
+if(!$SHONiR_Order){
+
+    $SHONiR_Order = "c.add_time";
+}else{
+
+    $SHONiR_Order = $SHONiR_Order;
+
+}
+
+$SHONiR_By = SHONiR_Post_Fnc('b');
+
+if($SHONiR_By!="asc"){
+
+    $SHONiR_By = "desc";
+
+}
+
+$SHONiR_Where = ' c.status=1 ';
+
+if(SHONiR_USER['user_type'] != 0){
+
+  //$SHONiR_Where .= " and (user_type='".SHONiR_USER['user_type']."' and user_id=".SHONiR_USER['user_id']." )";
+
+}
+
+$SHONiR_type = SHONiR_Post_Fnc('type'); 
+
+$SHONiR_Query = SHONiR_Get_Comments_Fnc($SHONiR_ID, $SHONiR_type, $SHONiR_Where , $SHONiR_Order, $SHONiR_By);
+
+if($SHONiR_Query){
+  $SHONiR_Total_Records = count($SHONiR_Query); 
+  }else{
+      $SHONiR_Total_Records = 0;
+  }
+
+$SHONiR_Page_No = SHONiR_Post_Fnc('n');
+
+$SHONiR_Records_Limit = SHONiR_SETTINGS['config_records_limit'];    
+
+$SHONiR_Total_Pages = ceil($SHONiR_Total_Records / $SHONiR_Records_Limit);
+
+if($SHONiR_Page_No>$SHONiR_Total_Pages){
+
+  $SHONiR_Return['type'] = 'error';
+  $SHONiR_Return['more'] = 'hide';
+
+}
+
+if(!ctype_digit($SHONiR_Page_No) || $SHONiR_Page_No<1 || $SHONiR_Page_No>$SHONiR_Total_Pages){
+
+  $SHONiR_Page_No = 1;
+}     
+
+$SHONiR_Start = ($SHONiR_Page_No-1) * $SHONiR_Records_Limit;      
+
+$SHONiR_SQL_Pagination_Limit = $SHONiR_Start.", ".$SHONiR_Records_Limit;
+
+$SHONiR_Query_Pagination = SHONiR_Get_Comments_Fnc($SHONiR_ID, $SHONiR_type, $SHONiR_Where, $SHONiR_Order, $SHONiR_By, $SHONiR_SQL_Pagination_Limit);
+
+if($SHONiR_Query_Pagination){
+  $SHONiR_Row_Pagination = count($SHONiR_Query_Pagination);
+  }else{
+      $SHONiR_Row_Pagination = 0;
+  }
+
+  if($SHONiR_Row_Pagination > 0 ){   
+
+    $SHONiR_Rows = $SHONiR_Query_Pagination;
+
+    foreach ($SHONiR_Rows as $key => $val)
+      {
+
+        $SHONiR_User_Class = ' commenter-'.$SHONiR_Rows[$key]['user_type'];
+
+        if($SHONiR_Rows[$key]['user_type'] == 0){
+
+         $SHONiR_val_name = $SHONiR_Rows[$key]['name'];
+
+         $SHONiR_val_picture = SHONiR_CDN_IMG.'media/images/guest.jpg';
+
+        }else{
+
+         $SHONiR_User_Type = SHONiR_User_Type_Fnc($SHONiR_Rows[$key]['user_type']);         
+
+          $SHONiR_Fnc = "SHONiR_".$SHONiR_User_Type."_Fnc"; 
+
+          if (function_exists($SHONiR_Fnc)) {
+    
+           $SHONiR_get_user = call_user_func($SHONiR_Fnc, $SHONiR_Rows[$key]['user_id']);
+
+           if($SHONiR_get_user){
+
+            $SHONiR_val_name =  $SHONiR_get_user['firstname'];          
+
+            if($SHONiR_get_user['picture']){
+            $SHONiR_val_picture = SHONiR_CDN_IMG.'media/uploads/'.$SHONiR_get_user['picture'];
+            }else{
+              $SHONiR_val_picture = SHONiR_CDN_IMG.'media/images/user.png';
+            }
+
+           }else{
+
+            $SHONiR_val_name = 'Unknown User';
+
+            $SHONiR_User_Class = 'commenter-disable';
+
+            $SHONiR_val_picture = SHONiR_CDN_IMG.'media/images/unknown-user.jpg';
+
+           }           
+    
+        } else {
+          
+          $SHONiR_val_name = 'Unknown User';
+          
+          $SHONiR_val_picture = SHONiR_CDN_IMG.'media/images/unknown-user.jpg';
+
+          $SHONiR_User_Class = 'commenter-unknown';
+
+        }
+
+                
+
+
+        }
+
+        
+  
+        $SHONiR_Data .= '<div class="media mb-4">
+        <img class="d-flex mr-3 rounded-circle" src="'.$SHONiR_val_picture.'" alt="">
+        <div class="media-body '.$SHONiR_User_Class.'">
+          <h5 class="mt-0">'.$SHONiR_val_name.'</h5>'.$SHONiR_Rows[$key]['details'].'
+        </div>
+      </div>';
+  
+      }
+
+      $SHONiR_Return['n'] = $SHONiR_Page_No+1;
+      $SHONiR_Return['type'] = 'success';
+      $SHONiR_Return['data'] = $SHONiR_Data; 
+      
+      if($SHONiR_Total_Pages == $SHONiR_Page_No){
+
+        $SHONiR_Return['more'] = 'hide';
+
+      }else{
+
+        $SHONiR_Return['more'] = 'show';
+
+      }
+     
+  }else{
+
+    $SHONiR_Return['n'] = $SHONiR_Page_No+1;
+    $SHONiR_Return['type'] = 'end';
+    $SHONiR_Return['data'] = '';
+
+    $SHONiR_Return['more'] = 'hide';
+
+  }    
+        
+    echo  json_encode($SHONiR_Return); 
+
+  }elseif($SHONiR_Second == "Comments" && $SHONiR_Third == "Post" && $SHONiR_ID){
+
+    header('Content-type: application/json');
+
+    $GLOBALS['SHONiR_RENDER'] = FALSE;   
+    
+    $SHONiR_CSRF = SHONiR_Post_Fnc('SHONiR_CSRF');
+
+    $SHONiR_Do = TRUE;
+
+    $SHONiR_Data = FALSE;
+
+    $SHONiR_status = 1;
+
+    $SHONiR_details = trim(SHONiR_Post_Fnc('details'));
+        $SHONiR_type = SHONiR_Post_Fnc('type');  
+        $SHONiR_name = SHONiR_Post_Fnc('name');
+        $SHONiR_email= SHONiR_Post_Fnc('email');
+        $SHONiR_reply_to= SHONiR_Post_Fnc('reply_to', FILTER_VALIDATE_INT);
+
+        if($SHONiR_details){
+
+        $SHONiR_details = SHONiR_T2H_Fnc($SHONiR_details);
+
+        }else{
+
+          $SHONiR_Alert['type'] = 'error';
+          $SHONiR_Alert['message'] = 'Text Too short: Text must be at least 2 characters in length.';
+        
+          $SHONiR_Do = FALSE;
+
+        }
+
+        if(!$SHONiR_reply_to){
+          $SHONiR_reply_to = 0;
+      }
+   
+    if($SHONiR_CSRF){            
+
+      if(SHONiR_CSRF_Fnc($SHONiR_CSRF)){ 
+        
+        if(SHONiR_USER['user_type'] == 0){
+
+        if(SHONiR_SETTINGS['guest_comments'] == "FALSE" ){
+
+          $SHONiR_Alert['type'] = 'error';
+          $SHONiR_Alert['message'] = 'Guest are not allowed to comments. Please login and try again.';
+        
+          $SHONiR_Do = FALSE;
+
+          $SHONiR_status = 0;
+
+        }
+
+      }
+
+      $SHONiR_Fnc = "SHONiR_".$SHONiR_type."_Details_Fnc"; 
+
+      if (function_exists($SHONiR_Fnc)) {
+
+       $SHONiR_Data = call_user_func($SHONiR_Fnc, $SHONiR_ID, ' and status=1 ', SHONiR_LANGUAGE['language_id']);
+
+    } else {
+      
+      $SHONiR_Alert['type'] = 'error';
+       $SHONiR_Alert['message'] = 'Bad Request: Your browser sent a request that this server could not understand.';          
+      $SHONiR_Do = FALSE;
+    }
+
+    
+    if(!$SHONiR_Data){
+      
+      $SHONiR_Alert['type'] = 'error';
+      $SHONiR_Alert['message'] = 'The requested record was not found or you do not have sufficient permissions to access these records.';          
+     $SHONiR_Do = FALSE;
+
+    }
+
+
+      if($SHONiR_Do){         
+
+     SHONiR_Query_Fnc("insert into tbl_comments (details, name, email, reply_to, parent_id, parent_type, status, add_ip, user_id, user_type, add_time) values ('". $SHONiR_details."', '".$SHONiR_name."', '".$SHONiR_email."',  ".$SHONiR_reply_to.", ".$SHONiR_ID.", '".$SHONiR_type."', ".$SHONiR_status.", '".SHONiR_IP."', ".SHONiR_USER['user_id'].", ".SHONiR_USER['user_type'].", ".time()." )");
+
+        $SHONiR_Alert['type'] = 'success';
+        $SHONiR_Alert['message'] = 'Your comment has been post successfully. Thanks for your comment.';
+
+      }
+
+      }else{
+
+        $SHONiR_Alert['type'] = 'error';
+        $SHONiR_Alert['message'] = 'Please make sure your browser has cookies enabled and try again.';
+      
+     }
+
+    }else{
+
+      $SHONiR_Alert['type'] = 'error';
+     $SHONiR_Alert['message'] = 'An unknown error occurred. Please refresh the page and try again.';
+
+  }
+
+  $SHONiR_Alert['SHONiR_CSRF'] = SHONiR_CSRF_Fnc('G');
+
+        echo  json_encode($SHONiR_Alert); 
 
     }elseif($SHONiR_Second == "Email" && ($SHONiR_Third == "Subscribe" || $SHONiR_Third == "UnSubscribe" ) &&  SHONiR_Post_Fnc('email', FILTER_VALIDATE_EMAIL)){
 
@@ -175,6 +482,8 @@ try {
 
             $SHONiR_country_id = SHONiR_Post_Fnc('country_id');
 
+            $SHONiR_select = SHONiR_Post_Fnc('select');
+
             $SHONiR_Column = '';
 
             if($SHONiR_country_id){
@@ -185,13 +494,23 @@ try {
 
             }
 
-            $Countries = SHONiR_Countries_Fnc($SHONiR_ID, $SHONiR_Column);
+            $Countries = SHONiR_Countries_Fnc($SHONiR_ID, $SHONiR_Column, $SHONiR_select);
 
             if($Countries){
               echo '<option value="">Select Country</option>'; 
               foreach ($Countries as $Country_key => $Country_value)
     {
-      echo '<option value="'.$Country_value['id'].'">'.$Country_value['name'].'</option>'; 
+
+      if($SHONiR_country_id == $Country_value['id'] && $SHONiR_select){
+
+        $SHONiR_Option_Extra = 'selected="selected"';
+
+      }else{
+
+        $SHONiR_Option_Extra = '';
+
+      }
+      echo '<option value="'.$Country_value['id'].'" '.$SHONiR_Option_Extra.'>'.$Country_value['name'].'</option>'; 
     }
 
             }else{
@@ -204,6 +523,8 @@ try {
           }elseif($SHONiR_Second === "Regions"){
 
             $SHONiR_country_id = SHONiR_Post_Fnc('country_id');
+            $SHONiR_region_id = SHONiR_Post_Fnc('region_id');
+            $SHONiR_select = SHONiR_Post_Fnc('select');
 
             $SHONiR_Column = '';
 
@@ -221,7 +542,17 @@ try {
               echo '<option value="">Select State</option>'; 
               foreach ($Regions as $Region_key => $Region_value)
     {
-      echo '<option value="'.$Region_value['id'].'">'.$Region_value['name'].'</option>'; 
+
+      if($SHONiR_region_id == $Region_value['id'] && $SHONiR_select){
+
+        $SHONiR_Option_Extra = 'selected="selected"';
+
+      }else{
+
+        $SHONiR_Option_Extra = '';
+
+      }
+      echo '<option value="'.$Region_value['id'].'" '.$SHONiR_Option_Extra.'>'.$Region_value['name'].'</option>'; 
     }
 
             }else{
@@ -234,6 +565,8 @@ try {
           }elseif($SHONiR_Second === "Cities"){
 
             $SHONiR_region_id = SHONiR_Post_Fnc('region_id');
+            $SHONiR_city_id = SHONiR_Post_Fnc('city_id');
+            $SHONiR_select = SHONiR_Post_Fnc('select');
 
             $SHONiR_Column = '';
 
@@ -251,7 +584,17 @@ try {
               echo '<option value="">Select City</option>'; 
               foreach ($Cities as $City_key => $City_value)
     {
-      echo '<option value="'.$City_value['id'].'">'.$City_value['name'].'</option>'; 
+
+      if($SHONiR_city_id == $City_value['id'] && $SHONiR_select){
+
+        $SHONiR_Option_Extra = 'selected="selected"';
+
+      }else{
+
+        $SHONiR_Option_Extra = '';
+
+      }
+      echo '<option value="'.$City_value['id'].'" '.$SHONiR_Option_Extra.'>'.$City_value['name'].'</option>'; 
     }
 
             }else{
@@ -327,7 +670,6 @@ try {
         }
 
         if($SHONiR_cart_id){
-
             $SHONiR_quantity = SHONiR_Post_Fnc('quantity', FILTER_VALIDATE_INT);
         if(!$SHONiR_quantity && $SHONiR_quantity<1){
             $SHONiR_quantity = 1;
@@ -336,7 +678,7 @@ try {
    SHONiR_Query_Fnc("insert into tbl_cart_products (cart_id, product_id, quantity) values (".$SHONiR_cart_id.", ".$SHONiR_ID.", ".$SHONiR_quantity.")");
 
             $SHONiR_Alert['type'] = 'success';
-                $SHONiR_Alert['message'] = 'Success: You have added <b><a href="'.SHONiR_BASE.'Go/Pr/'.$SHONiR_ID.'">'.$SHONiR_Product_Details['name'].'</a></b> to your <b><a href="'.SHONiR_BASE.'Cart">shopping cart</a></b>! ';
+                $SHONiR_Alert['message'] = 'Success: You have added <b><a href="'.SHONiR_BASE.'Go/Pr/'.$SHONiR_ID.'">'.$SHONiR_Product_Details['name'].'</a></b> to your <b><a href="'.SHONiR_BASE.'Cart">Enquiry Basket</a></b>! ';
 
         }else{
 
@@ -356,7 +698,131 @@ try {
     }
     $GLOBALS['SHONiR_RENDER'] = FALSE;
 
-            }elseif($SHONiR_Second === "Product-Quick-View" && $SHONiR_ID){
+  }elseif($SHONiR_Second === "Uploads"){
+
+    $SHONiR_token = SHONiR_Post_Fnc('token');
+
+    if($SHONiR_token){
+
+      $SHONiR_upload_id = SHONiR_Post_Fnc('upload_id');
+
+    if($SHONiR_Third === "Delete" && $SHONiR_upload_id){
+
+      $SHONiR_Upload =  SHONiR_Uploads_Fnc($SHONiR_upload_id);  
+
+      SHONiR_Query_Fnc("delete from tbl_uploads where upload_id=".$SHONiR_Upload[0]['upload_id']);
+
+      if($SHONiR_Upload[0]['token'] === $SHONiR_token){
+
+      if (file_exists(SHONiR_ROOT.'media/tmp/'.$SHONiR_Upload[0]['upload_file'])) { unlink (SHONiR_ROOT.'media/tmp/'.$SHONiR_Upload[0]['upload_file']); }
+
+      $SHONiR_Response = array (
+        'status' => 'success',
+        'info'   => 'File '.$SHONiR_Upload[0]['upload_file'].' has been removed successfully.');
+
+      }else{
+
+        $SHONiR_Response = array (
+          'status' => 'error',
+          'info'   => 'Couldn\'t delete the requested file :(, a mysterious error happend.'
+      );
+
+      }
+
+    }else{  
+
+    $SHONiR_file = $_FILES['file'];  
+
+    $SHONiR_file_name = $SHONiR_file['name'];
+
+    $SHONiR_file_pos = strrpos($SHONiR_file_name, '.');
+
+
+    if(empty($SHONiR_file_name) && empty($SHONiR_file_pos)){
+
+      $SHONiR_file_final = '';
+     
+      }else{
+     
+       $SHONiR_file_extension = strtolower(substr($SHONiR_file_name, $SHONiR_file_pos, strlen($SHONiR_file_name)));
+     
+       $SHONiR_file_final = SHONiR_Slug_Fnc(str_replace($SHONiR_file_extension, '', $SHONiR_file_name));
+     
+      $SHONiR_file_final = $SHONiR_file_final."-".SHONiR_Counter_Fnc('uploads').$SHONiR_file_extension;
+     
+     }
+
+     if($SHONiR_file_final)
+{
+
+ if(strpos(SHONiR_SETTINGS['custom_upload_files'], $SHONiR_file_extension) === false){
+
+  $SHONiR_Response = array (
+    'status' => 'error',
+    'info'   => 'You can\'t upload files of this type ['.$SHONiR_file_extension.'].');
+
+  }else{
+
+SHONiR_Query_Fnc("insert into tbl_uploads (upload_file, parent_type, add_time, token) values ('".$SHONiR_file_final."', 'tmp', ".time().", '".$SHONiR_token."')");
+
+$SHONiR_upload_id = SHONiR_Insert_ID_Fnc();
+
+move_uploaded_file($SHONiR_file["tmp_name"], SHONiR_ROOT.'media/tmp/'.$SHONiR_file_final);
+
+$SHONiR_Response = array (
+  'status'    => 'success',
+  'upload_id' => $SHONiR_upload_id
+);
+
+}
+
+}else{
+
+  $SHONiR_Response = array (
+    'status' => 'error',
+    'info'   => 'Couldn\'t upload the requested file :(, a mysterious error happend.'
+);
+
+}
+
+}
+
+}else{
+
+  $SHONiR_Response = array (
+    'status' => 'error',
+    'info'   => 'An unknown error occurred. Please refresh the page and try again.'
+);
+
+}
+
+echo json_encode($SHONiR_Response);
+    $GLOBALS['SHONiR_RENDER'] = FALSE;
+  }elseif($SHONiR_Second === "Product-Quick-View" && $SHONiR_ID){
+
+    $SHONiR_Product_Details = SHONiR_Product_Details_Fnc($SHONiR_ID, ' and status=1', SHONiR_LANGUAGE['language_id']);
+
+    if($SHONiR_Product_Details){
+
+      $SHONiR_Main['SHONiR_CSRF'] = SHONiR_CSRF_Fnc('G');
+
+      $SHONiR_Main['SHONiR_Product_Details'] = $SHONiR_Product_Details;
+
+      $GLOBALS['SHONiR_AJAX_VIEWS'] = $SHONiR_Second;
+
+      $SHONiR_Data["SHONiR_Main"] =  $SHONiR_Main;
+
+      return $SHONiR_Data;
+      
+    }else{
+
+      echo '<b>Oops... Page Not Found!</b>  <p>We\'re sorry, but the page you were looking for doesn\'t exist.</p>';
+
+      $GLOBALS['SHONiR_RENDER'] = FALSE;
+
+  }
+
+            }elseif($SHONiR_Second === "Product-Quick-Order" && $SHONiR_ID){
 
                 $SHONiR_Product_Details = SHONiR_Product_Details_Fnc($SHONiR_ID, ' and status=1', SHONiR_LANGUAGE['language_id']);
 
@@ -375,16 +841,21 @@ try {
                             if(SHONiR_Captcha_Fnc_Render($SHONiR_Captcha)){
 
                               $SHONiR_ship_name = SHONiR_Post_Fnc('ship_name');
+                              $SHONiR_ship_company = SHONiR_Post_Fnc('ship_company');
                               $SHONiR_ship_email = SHONiR_Post_Fnc('ship_email');
                               $SHONiR_ship_cell = SHONiR_Get_Number_Fnc(SHONiR_Post_Fnc('ship_cell'));
                               $SHONiR_ship_address1 = SHONiR_T2H_Fnc(SHONiR_Post_Fnc('ship_address1'));
                               $SHONiR_ship_address2 = SHONiR_Post_Fnc('ship_address2');
-                              $SHONiR_ship_postcode = SHONiR_SETTINGS['website_postcode'];
-                              $SHONiR_ship_country_id = SHONiR_SETTINGS['website_country_id'];
-                              $SHONiR_ship_region_id = SHONiR_SETTINGS['website_region_id'];
-                              $SHONiR_ship_city_id = SHONiR_SETTINGS['website_city_id'];
+                              $SHONiR_ship_postcode = SHONiR_Post_Fnc('ship_postcode');
+                              $SHONiR_ship_country_id = SHONiR_Post_Fnc('ship_country');
+                              $SHONiR_ship_region_id = SHONiR_Post_Fnc('ship_region');
+                              $SHONiR_ship_city_id = SHONiR_Post_Fnc('ship_city');
+
+                              $SHONiR_contract_term = SHONiR_Post_Fnc('contract_term');
+                              $SHONiR_freight_forwarding = SHONiR_Post_Fnc('freight_forwarding');
                               
                               $SHONiR_bill_name = $SHONiR_ship_name ;
+                              $SHONiR_bill_company = $SHONiR_ship_company ;
                 $SHONiR_bill_email = $SHONiR_ship_email;
                 $SHONiR_bill_cell = $SHONiR_ship_cell;
                 $SHONiR_bill_address1 = $SHONiR_ship_address1;
@@ -404,11 +875,13 @@ try {
 
                 $SHONiR_Products[0] = array_merge($SHONiR_Cart,$SHONiR_Product_Details);
 
-                SHONiR_New_Order_Fnc($SHONiR_Products, $SHONiR_ship_name, $SHONiR_ship_email, $SHONiR_ship_cell, $SHONiR_ship_address1, $SHONiR_ship_address2, $SHONiR_ship_postcode, $SHONiR_ship_country_id, $SHONiR_ship_region_id, $SHONiR_ship_city_id, $SHONiR_bill_name, $SHONiR_bill_email, $SHONiR_bill_cell, $SHONiR_bill_address1, $SHONiR_bill_address2, $SHONiR_bill_postcode, $SHONiR_bill_country_id, $SHONiR_bill_region_id, $SHONiR_bill_city_id, $SHONiR_shipping_method, $SHONiR_payment_method, 0, 0, '', SHONiR_USER['user_id'], SHONiR_USER['user_type'], $SHONiR_user_comments);
+            
+                SHONiR_New_Order_Fnc($SHONiR_Products, $SHONiR_ship_name, $SHONiR_ship_company, $SHONiR_ship_email, $SHONiR_ship_cell, $SHONiR_ship_address1, $SHONiR_ship_address2, $SHONiR_ship_postcode, $SHONiR_ship_country_id, $SHONiR_ship_region_id, $SHONiR_ship_city_id, $SHONiR_bill_name, $SHONiR_bill_company, $SHONiR_bill_email, $SHONiR_bill_cell, $SHONiR_bill_address1, $SHONiR_bill_address2, $SHONiR_bill_postcode, $SHONiR_bill_country_id, $SHONiR_bill_region_id, $SHONiR_bill_city_id, $SHONiR_shipping_method, $SHONiR_payment_method, 0, 0, '', SHONiR_USER['user_id'], SHONiR_USER['user_type'], $SHONiR_user_comments, $SHONiR_contract_term, $SHONiR_freight_forwarding, SHONiR_SETTINGS['order_product_history']);
 
 
                     $SHONiR_Alert['type'] = 'success';
-                                $SHONiR_Alert['message'] = '<b>Thank You!</b> Your order has been placed and is being processed. We will get back to you as soon as possible.';
+                               // $SHONiR_Alert['message'] = '<b>Thank You!</b> Your order has been placed and is being processed. We will get back to you as soon as possible.';
+                               $SHONiR_Alert['message'] = '<b> Thank you for your enquiry!</b>  Your message has been sent successfully. It has been forwarded to the relevant department and will be dealt with as soon as possible.';
                                 echo json_encode($SHONiR_Alert);
 
                             }else{

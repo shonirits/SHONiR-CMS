@@ -14,6 +14,22 @@ function SHONiR_Welcome_Fnc_Render(){
 
     $SHONiR_Data["Trending_Products"] = SHONiR_Get_Products_Fnc(TRUE, 0, "p.status=1 and p.listed=1", "p.viewed desc, p.hits", "desc", SHONiR_SETTINGS['config_records_limit']);
 
+    $SHONiR_Data["Main_Banners"] = SHONiR_Get_Banners_Fnc(TRUE, TRUE, "parent_id='homepage_main' and b.status=1  and b.listed=1 ", 'b.viewed', 'asc');
+
+    $SHONiR_Data["homepage_one"] = SHONiR_Get_Banners_Fnc(TRUE, TRUE, "parent_id='homepage_one' and b.status=1  and b.listed=1 ", 'b.viewed', 'asc', 1);
+
+    $SHONiR_Data["homepage_two"] = SHONiR_Get_Banners_Fnc(TRUE, TRUE, "parent_id='homepage_two' and b.status=1  and b.listed=1 ", 'b.viewed', 'asc', 1);
+
+    $SHONiR_Data["homepage_three"] = SHONiR_Get_Banners_Fnc(TRUE, TRUE, "parent_id='homepage_three' and b.status=1  and b.listed=1 ", 'b.viewed', 'asc', 1);
+
+    $SHONiR_Data["homepage_four"] = SHONiR_Get_Banners_Fnc(TRUE, TRUE, "parent_id='homepage_four' and b.status=1  and b.listed=1 ", 'b.viewed', 'asc', 1);
+
+    $SHONiR_Data["homepage_five"] = SHONiR_Get_Banners_Fnc(TRUE, TRUE, "parent_id='homepage_five' and b.status=1  and b.listed=1 ", 'b.viewed', 'asc', 1);
+
+    $SHONiR_Data["homepage_six"] = SHONiR_Get_Banners_Fnc(TRUE, TRUE, "parent_id='homepage_six' and b.status=1  and b.listed=1 ", 'b.viewed', 'asc', 1);
+
+    $SHONiR_Data["Featured_Blogs"] = SHONiR_Get_Blogs_Fnc(TRUE, 0, "b.status=1 and b.featured=1 and b.published_time<".time(), "b.published_time", "desc", 3);
+
     $SHONiR_Data["Recently_Viewed_Products"] = SHONiR_Get_Products_Fnc(TRUE, 0, "p.status=1 and p.listed=1", "p.last_hit", "desc", SHONiR_SETTINGS['config_records_limit']);
 
     $SHONiR_Data["SHONiR_Main"] = SHONiR_Page_Details_Fnc(10);
@@ -28,9 +44,9 @@ return $SHONiR_Data;
 function SHONiR_AP_Welcome_Fnc_Render(){    
 
 
-    if(SHONiR_USER['user_type'] == 'Administrator'){
+    if(SHONiR_USER['user_type'] == 1){
 
-        $SHONiR_Login =  SHONiR_AP_Login_Fnc(SHONiR_USER['username'], SHONiR_USER['password']);
+        $SHONiR_Login =  SHONiR_AP_Login_Fnc(SHONiR_USER['user_id'], SHONiR_USER['password']);
 
         if($SHONiR_Login == 'success'){
 
@@ -38,9 +54,9 @@ function SHONiR_AP_Welcome_Fnc_Render(){
     
           }
 
-    }elseif(SHONiR_Cookie_Exist_Fnc('SHONiR_AP_Username') && SHONiR_Cookie_Exist_Fnc('SHONiR_AP_Password')){
+    }elseif(SHONiR_Cookie_Exist_Fnc('SHONiR_AP_ID') && SHONiR_Cookie_Exist_Fnc('SHONiR_AP_Password')){
 
-      $SHONiR_Login = SHONiR_AP_Login_Fnc(SHONiR_Cookie_Read_Fnc('SHONiR_AP_Username'), SHONiR_Cookie_Read_Fnc('SHONiR_AP_Password'), 1);
+      $SHONiR_Login = SHONiR_AP_Login_Fnc(SHONiR_Cookie_Read_Fnc('SHONiR_AP_ID'), SHONiR_Cookie_Read_Fnc('SHONiR_AP_Password'), 1);
 
       if($SHONiR_Login == 'success'){
 
@@ -54,17 +70,7 @@ function SHONiR_AP_Welcome_Fnc_Render(){
 
     $SHONiR_Main = array();
 
-    if(SHONiR_Cookie_Exist_Fnc('SHONiR_AP_Username')){
-
-        $SHONiR_Username = SHONiR_Cookie_Read_Fnc('SHONiR_AP_Username');
-
-    }else{
-
-        $SHONiR_Username = '';
-
-    }
-
-    $SHONiR_Main['username'] = $SHONiR_Username;
+    $SHONiR_Main['username'] = '';
 
     $SHONiR_Main['password'] = '';
 

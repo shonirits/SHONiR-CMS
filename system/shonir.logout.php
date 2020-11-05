@@ -5,10 +5,7 @@
 
 function SHONiR_AP_Logout_Fnc_Render(){
 
-    SHONiR_Session_Delete_Fnc('SHONiR_User');
-    SHONiR_Session_Delete_Fnc('SHONiR_AP_Username');
-    SHONiR_Session_Delete_Fnc('SHONiR_AP_Password');
-    SHONiR_Cookie_Delete_Fnc('SHONiR_AP_Password');
+    SHONiR_AP_Logout_Fnc();
 
     SHONiR_Session_New_Fnc();
 

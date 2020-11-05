@@ -1,10 +1,17 @@
 <?php defined('SHONiR') OR exit('No direct script access allowed');
 
+function SHONiR_AP_Logout_Fnc(){
 
+    SHONiR_Session_Delete_Fnc('SHONiR_User');
+    SHONiR_Session_Delete_Fnc('SHONiR_AP_ID');
+    SHONiR_Session_Delete_Fnc('SHONiR_AP_Password');
+    SHONiR_Cookie_Delete_Fnc('SHONiR_AP_Password');
+    
+}
 
-function SHONiR_AP_Login_Fnc($SHONiR_Username, $SHONiR_Password, $SHONiR_Remember = 0){
+function SHONiR_AP_Login_Fnc($SHONiR_ID, $SHONiR_Password, $SHONiR_Remember = 0){
 
-    $SHONiR_Data = SHONiR_AP_Administrator_Fnc($SHONiR_Username, 'username');
+    $SHONiR_Data = SHONiR_AP_Administrator_Fnc($SHONiR_ID, 'administrator_id');
 
     $SHONiR_Again_Attempt = 0;
     $SHONiR_Return = '';
@@ -50,10 +57,10 @@ function SHONiR_AP_Login_Fnc($SHONiR_Username, $SHONiR_Password, $SHONiR_Remembe
             
             SHONiR_Session_Write_Fnc('SHONiR_User', array_merge($SHONiR_User,$SHONiR_Data));
 
-            SHONiR_Session_Write_Fnc('SHONiR_AP_Username', $SHONiR_Username);
+            SHONiR_Session_Write_Fnc('SHONiR_AP_ID', $SHONiR_ID);
             SHONiR_Session_Write_Fnc('SHONiR_AP_Password', $SHONiR_Password);
 
-            SHONiR_Cookie_Write_Fnc('SHONiR_AP_Username', $SHONiR_Username, 3600*24*30);
+            SHONiR_Cookie_Write_Fnc('SHONiR_AP_ID', $SHONiR_ID, 3600*24*30);
 
             if($SHONiR_Remember)
             {
@@ -127,6 +134,28 @@ function SHONiR_AP_Administrator_Fnc($SHONiR_Value, $SHONiR_Key = 'administrator
 
 
 }
+
+function SHONiR_Administrator_Fnc($SHONiR_Value, $SHONiR_Key = 'administrator_id'){
+
+
+    $SHONiR_Query_Administrator = SHONiR_Query_Fnc("select * from tbl_administrators where ".$SHONiR_Key."='".$SHONiR_Value."'");
+  
+    $SHONiR_Row_Administrator = SHONiR_Row_Fnc($SHONiR_Query_Administrator);
+  
+    if($SHONiR_Row_Administrator > 0){
+  
+        $SHONiR_Return = SHONiR_Fetch_Fnc($SHONiR_Query_Administrator);
+  
+    }else{
+  
+        $SHONiR_Return = FALSE;
+  
+    }
+  
+    return $SHONiR_Return;
+  
+  
+  }
 
 
 ?>

@@ -138,7 +138,11 @@ if($SHONiR_URL_CHANGE){
 
 }
 
+$SHONiR_URL = $SHONiR_HTTP."://".$SHONiR_HOST.strtok($_SERVER["REQUEST_URI"], '?');
+
 define('SHONiR_HTTP', $SHONiR_HTTP);
+
+define('SHONiR_URL', $SHONiR_URL);
 
 define('SHONiR_LINK', $SHONiR_Link);
 
@@ -164,7 +168,7 @@ if(!empty(SHONiR_SETTINGS['cdn_global'])){
 
     $SHONiR_CDN = SHONiR_SETTINGS['cdn_global'];
 
-	}
+    }
 
 define('SHONiR_CDN', $SHONiR_CDN);
 
@@ -172,9 +176,9 @@ $SHONiR_CDN_AST = SHONiR_BASE;
 
 if(!empty(SHONiR_SETTINGS['cdn_assets'])){
 
-	$SHONiR_CDN_AST = SHONiR_SETTINGS['cdn_assets'];
+    $SHONiR_CDN_AST = SHONiR_SETTINGS['cdn_assets'];
 
-	}
+    }
 
 define('SHONiR_CDN_AST', $SHONiR_CDN_AST);
 
@@ -183,9 +187,9 @@ $SHONiR_CDN_IMG = SHONiR_BASE;
 
 if(!empty(SHONiR_SETTINGS['cdn_images'])){
 
-	$SHONiR_CDN_IMG = SHONiR_SETTINGS['cdn_images'];
+    $SHONiR_CDN_IMG = SHONiR_SETTINGS['cdn_images'];
 
-	}
+    }
 
 define('SHONiR_CDN_IMG', $SHONiR_CDN_IMG);
 
@@ -225,12 +229,25 @@ $SHONiR_Total_Segments = count($SHONiR_Segments);
 }
 }
 
+if($GLOBALS['SHONiR_APANEL']){
+
+	$SHONiR_Theme = SHONiR_SETTINGS['theme_backend'];
+
+}else{
+
+	$SHONiR_Theme = SHONiR_SETTINGS['theme_frontend'];
+
+}
+
+$GLOBALS['SHONiR_THEME'] = $SHONiR_Theme;
+define('SHONiR_THEME', $SHONiR_Theme);
 define('SHONiR_VIEW', $SHONiR_View);
 define('SHONiR_SEGMENTS', $SHONiR_Segments);
 $GLOBALS['SHONiR_RENDER'] = TRUE;
 $GLOBALS['SHONiR_AJAX_VIEWS'] = FALSE;
 $GLOBALS['SHONiR_VIEWS_FILE'] = FALSE;
 $GLOBALS['SHONiR_CACHE'] = TRUE;
+$GLOBALS['SHONiR_USER'] = FALSE;
 
 
 $SHONiR_URI = SHONiR_URI_Fnc(SHONiR_SEGMENTS);
@@ -243,12 +260,12 @@ if (in_array($SHONiR_URI['First'], $SHONiR_App_Dir))
   }
   $SHONiR_Dont_Cache = array('Cart', 'Checkout');
 
-  if (in_array($SHONiR_URI['First'], $SHONiR_Dont_Cache))
+  if (in_array($SHONiR_URI['First'], $SHONiR_Dont_Cache) || SHONiR_Session_Exist_Fnc('SHONiR_Alert'))
   {
 	$GLOBALS['SHONiR_CACHE'] = FALSE;
 }
 
-  $SHONiR_Dont_Visitor = array('Watermark', 'Captcha', 'Code');
+  $SHONiR_Dont_Visitor = array('Watermark', 'Captcha', 'Code', 'Ajax');
 
 define('SHONiR_URI', $SHONiR_URI);
 
@@ -270,7 +287,55 @@ if(SHONiR_Session_Exist_Fnc('SHONiR_User')){
 
 $SHONiR_User = 	SHONiR_Session_Read_Fnc('SHONiR_User');
 
-$GLOBALS['SHONiR_USER'] = $SHONiR_User;
+if($SHONiR_User['user_type']==1){
+
+	$SHONiR_Login =  SHONiR_AP_Login_Fnc($SHONiR_User['user_id'], $SHONiR_User['password']);
+
+	if($SHONiR_Login != 'success'){
+
+		SHONiR_AP_Logout_Fnc();
+
+		SHONiR_Session_Delete_Fnc('SHONiR_User');
+		$GLOBALS['SHONiR_USER'] = FALSE;
+	$SHONiR_User['user_id'] = 0;
+	$SHONiR_User['user_type'] = 0;
+	$SHONiR_User['password'] = '';
+
+	}else{
+
+		$GLOBALS['SHONiR_USER'] = $SHONiR_User;
+
+	}
+
+}elseif($SHONiR_User['user_type']==3){
+
+	$SHONiR_Login =  SHONiR_Customer_Login_Fnc($SHONiR_User['user_id'], $SHONiR_User['password']);
+
+	if($SHONiR_Login != 'success'){
+
+		SHONiR_Customer_Logout_Fnc();
+
+		SHONiR_Session_Delete_Fnc('SHONiR_User');
+		$GLOBALS['SHONiR_USER'] = FALSE;
+	$SHONiR_User['user_id'] = 0;
+	$SHONiR_User['user_type'] = 0;
+	$SHONiR_User['password'] = '';
+
+	}else{
+
+		$GLOBALS['SHONiR_USER'] = $SHONiR_User;
+
+	}
+
+}else{
+
+	SHONiR_Session_Delete_Fnc('SHONiR_User');
+	$GLOBALS['SHONiR_USER'] = FALSE;
+$SHONiR_User['user_id'] = 0;
+$SHONiR_User['user_type'] = 0;
+$SHONiR_User['password'] = '';
+
+}
 
 
 }else{
@@ -279,8 +344,13 @@ $GLOBALS['SHONiR_USER'] = FALSE;
 
 $SHONiR_User['user_id'] = 0;
 $SHONiR_User['user_type'] = 0;
-$SHONiR_User['username'] = '';
 $SHONiR_User['password'] = '';
+
+}
+
+if($GLOBALS['SHONiR_USER']){
+
+	$GLOBALS['SHONiR_CACHE'] = FALSE;
 
 }
 
@@ -376,16 +446,11 @@ define('SHONiR_CURRENCY', $SHONiR_Currency);
 
 $GLOBALS['SHONiR_CURRENCY'] = $SHONiR_Currency;
 
-$SHONiR_Query_Visitors = SHONiR_Query_Fnc("select * from tbl_visitors where session_id='".$GLOBALS['SHONiR_SESSION_ID']."'");
+$SHONiR_Visitor = SHONiR_Get_Visitor_Fnc('session_id', $GLOBALS['SHONiR_SESSION_ID']);
 
-$SHONiR_Row_Visitors = SHONiR_Row_Fnc($SHONiR_Query_Visitors);
+if($SHONiR_Visitor){
 
-if($SHONiR_Row_Visitors > 0 ){
-
-$SHONiR_Fetch_Visitors = SHONiR_Fetch_Fnc($SHONiR_Query_Visitors);
-
-
-if((SHONiR_IDLE - (time() - $SHONiR_Fetch_Visitors['edit_time'])) <= 0){
+if((SHONiR_IDLE - (time() - $SHONiR_Visitor['edit_time'])) <= 0){
 
 	SHONiR_Session_New_Fnc();
 
@@ -417,11 +482,18 @@ SHONiR_Counter_Fnc('pageviews');
 
 $SHONiR_IP_Info = SHONiR_IP_Info_Fnc(SHONiR_IP);
 
+if(SHONiR_Is_Ajax_Fnc() === FALSE && in_array($SHONiR_URI['First'], $SHONiR_Dont_Visitor) === FALSE){
+
 SHONiR_Query_Fnc("insert into tbl_visitors (session_id, add_ip, language_id, currency_id, url, referer, bot, mobile, agent, user_id, user_type, country, city, code, add_time, edit_time) values ('".$GLOBALS['SHONiR_SESSION_ID']."', '".SHONiR_IP."', ".SHONiR_LANGUAGE['language_id'].", ".SHONiR_CURRENCY['currency_id'].", '".SHONiR_LINK."',  '".SHONiR_Referer_Fnc()."', $SHONiR_Is_Bot, $SHONiR_Is_Mobile, '.$SHONiR_Agent.', ".SHONiR_USER['user_id'].", '".SHONiR_USER['user_type']."', '".$SHONiR_IP_Info['country_name']."', '".$SHONiR_IP_Info['city']."', '".$SHONiR_IP_Info['country_code']."', ".time().", ".time()." )");
 
 SHONiR_Counter_Fnc('visitors');
 
 }
+
+}
+
+$SHONiR_Visitor = SHONiR_Get_Visitor_Fnc('session_id', $GLOBALS['SHONiR_SESSION_ID']);
+
 
 define('SHONiR_SESSION_ID', $GLOBALS['SHONiR_SESSION_ID']);
 
@@ -452,7 +524,7 @@ if($SHONiR_Fnc === 'AP_'){
 
 	if($SHONiR_URI['First'] != 'Welcome'){
 
-		$SHONiR_Login =  SHONiR_AP_Login_Fnc(SHONiR_USER['username'], SHONiR_USER['password']);
+		$SHONiR_Login =  SHONiR_AP_Login_Fnc(SHONiR_USER['user_id'], SHONiR_USER['password']);
 
         if($SHONiR_Login != 'success'){
 
@@ -463,6 +535,31 @@ if($SHONiR_Fnc === 'AP_'){
           SHONiR_Redirect_Fnc(SHONiR_APANEL.'Welcome?continue='.$SHONiR_Continue);
 
           }
+
+	}
+
+}else{
+
+	if($SHONiR_URI['First'] == 'Customers'){
+
+		$GLOBALS['SHONiR_CACHE'] = FALSE;
+
+		if($SHONiR_URI['Second'] != 'Login'){
+
+		$SHONiR_Login =  SHONiR_Customer_Login_Fnc(SHONiR_USER['user_id'], SHONiR_USER['password']);
+
+        if($SHONiR_Login != 'success'){
+
+          $SHONiR_Alert['type'] = 'error';
+          $SHONiR_Alert['message'] = 'Access Denied: You must login to access requested page.';
+          SHONiR_Session_Write_Fnc('SHONiR_Alert', $SHONiR_Alert);
+          $SHONiR_Continue = urlencode(SHONiR_LINK);
+          SHONiR_Redirect_Fnc(SHONiR_BASE.'Customers/Login?continue='.$SHONiR_Continue);
+
+          }
+
+	}
+
 
 	}
 

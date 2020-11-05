@@ -418,9 +418,7 @@ $SHONiR_Alert['type'] = 'success';
             $SHONiR_Main['SHONiR_CSRF'] = SHONiR_CSRF_Fnc('G');
 
             $SHONiR_Main['SHONiR_Languages'] = SHONiR_Languages_Fnc(FALSE, 1, 'asc');
-            
-            $SHONiR_Main['SHONiR_Brands'] = SHONiR_Get_Brands_Fnc();
-
+        
             $GLOBALS['SHONiR_VIEWS_FILE'] = "brands-add";
 
 

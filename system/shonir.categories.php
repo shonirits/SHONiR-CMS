@@ -33,7 +33,7 @@ return $SHONiR_Data;
 
 }
 
-function SHONiR_Categories_Menu_Fnc($SHONiR_Array, $SHONiR_Level=1){
+function SHONiR_Categories_Menu_Fnc($SHONiR_Array, $SHONiR_Level=1, $SHONiR_Class=TRUE){
 
     $SHONiR_Data ='';
     $SHONiR_Level++;
@@ -49,16 +49,16 @@ function SHONiR_Categories_Menu_Fnc($SHONiR_Array, $SHONiR_Level=1){
 
             if($SHONiR_Level==1)
             {
-                
+                if($SHONiR_Class){
                 $SHONiR_LI_Class =    'nav-item dropdown';
                 $SHONiR_Href_Class =    'nav-link';
-
+                }
             }else{
-
+                if($SHONiR_Class){
                 $SHONiR_LI_Class =    'dropdown-submenu';
                 $SHONiR_Href_Class =    'dropdown-item';
 
-
+                }
             }
 
             $SHONiR_Data .= '<li class="'.$SHONiR_LI_Class.'">';
@@ -72,16 +72,16 @@ function SHONiR_Categories_Menu_Fnc($SHONiR_Array, $SHONiR_Level=1){
 
             if($SHONiR_Level==1)
             {
-                
+                if($SHONiR_Class){
                 $SHONiR_LI_Class =    'nav-item';
                 $SHONiR_Href_Class =    'nav-link';
-
+                }
             }else{
-
+                if($SHONiR_Class){
                 $SHONiR_LI_Class =    '';
                 $SHONiR_Href_Class =    'dropdown-item';
 
-
+                }
             }
 
             $SHONiR_Data .= '<li class="'.$SHONiR_LI_Class.'"><a href="'.SHONiR_Category_Href_Fnc($Array_value['category_id'], $Array_value['slug']).'" class="'.$SHONiR_Href_Class.'">'.$Array_value['name'].'</a></li>';

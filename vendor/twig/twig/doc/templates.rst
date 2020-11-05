@@ -555,6 +555,11 @@ exist:
     {# keys as integer #}
     { 2: 'foo', 4: 'bar' }
 
+    {# keys can be omitted if it is the same as the variable name #}
+    { foo }
+    {# is equivalent to the following #}
+    { 'foo': foo }
+
     {# keys as expressions (the expression must be enclosed into parentheses) #}
     {% set foo = 'foo' %}
     { (foo): 'foo', (1 + 1): 'bar', (foo ~ 'b'): 'baz' }
@@ -832,17 +837,11 @@ the modifiers on one side of a tag or on both sides:
 
         {# output will be <div><strong>foo bar</strong></div> #}
 
-    The ``apply`` tag was introduced in Twig 2.9; use the ``filter`` tag with
-    previous versions.
-
 Extensions
 ----------
 
-Twig can be extended. If you are looking for new tags, filters, or functions,
-have a look at the Twig official `extension repository`_.
-
-If you want to create your own, read the :ref:`Creating an
-Extension<creating_extensions>` chapter.
+Twig can be extended. If you want to create your own extensions, read the
+:ref:`Creating an Extension <creating_extensions>` chapter.
 
 .. _`Twig bundle`:                https://github.com/Anomareh/PHP-Twig.tmbundle
 .. _`Jinja syntax plugin`:        http://jinja.pocoo.org/docs/integration/#vim
@@ -850,7 +849,6 @@ Extension<creating_extensions>` chapter.
 .. _`Twig syntax plugin`:         http://plugins.netbeans.org/plugin/37069/php-twig
 .. _`Twig plugin`:                https://github.com/pulse00/Twig-Eclipse-Plugin
 .. _`Twig language definition`:   https://github.com/gabrielcorpse/gedit-twig-template-language
-.. _`extension repository`:       https://github.com/twigphp/Twig-extensions
 .. _`Twig syntax mode`:           https://github.com/bobthecow/Twig-HTML.mode
 .. _`other Twig syntax mode`:     https://github.com/muxx/Twig-HTML.mode
 .. _`Notepad++ Twig Highlighter`: https://github.com/Banane9/notepadplusplus-twig

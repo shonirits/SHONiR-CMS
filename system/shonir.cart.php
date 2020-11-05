@@ -88,6 +88,8 @@ function SHONiR_Cart_Fnc_Render(){
 
     $SHONiR_Data["Recently_Viewed_Products"] = SHONiR_Get_Products_Fnc(TRUE, 0, "p.status=1 and p.listed=1", "p.last_hit", "desc", SHONiR_SETTINGS['config_records_limit']);
 
+    $SHONiR_Data["Main_Banners"] = SHONiR_Get_Banners_Fnc(TRUE, TRUE, "parent_id='cart' and b.status=1  and b.listed=1 ", 'b.viewed', 'asc');
+
     $SHONiR_Data["SHONiR_Main"] =  $SHONiR_Main;
 
     $GLOBALS['SHONiR_CACHE'] = FALSE;

@@ -89,6 +89,19 @@ function SHONiR_Write_Price_Fnc($SHONiR_Price, $SHONiR_ID = FALSE){
 return $SHONiR_Return;
 }
 
+function SHONiR_Embed_Video_Fnc($SHONiR_URL){
+
+    $SHONiR_Return = FALSE;
+    
+    $SHONiR_Return = preg_replace(
+		"/\s*[a-zA-Z\/\/:\.]*youtu(be.com\/watch\?v=|.be\/)([a-zA-Z0-9\-_]+)([a-zA-Z0-9\/\*\-\_\?\&\;\%\=\.]*)/i",
+		"<iframe width=\"420\" height=\"315\" src=\"//www.youtube.com/embed/$2?rel=0&autoplay=1&mute=1&loop=1&playlist=PLj1a1YRmcRkiytkmivYypEGZqpJlPQxwj\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>",
+		$SHONiR_URL
+	);
+
+return $SHONiR_Return;
+}
+
 function SHONiR_Is_Ajax_Fnc(){
 
     $SHONiR_Return = FALSE;
@@ -102,13 +115,13 @@ function SHONiR_Is_Ajax_Fnc(){
     }
 
 
-    function SHONiR_Countries_Fnc($SHONiR_ID = 0, $SHONiR_Column = "id"){
+    function SHONiR_Countries_Fnc($SHONiR_ID = 0, $SHONiR_Column = "id", $SHONiR_Select = FALSE){
 
         $SHONiR_Return = FALSE;
 
         $SHONiR_Extra = "";
 
-        if($SHONiR_ID){
+        if($SHONiR_ID && $SHONiR_Select == FALSE){
 
             $SHONiR_Extra = " where ".$SHONiR_Column."=".$SHONiR_ID;
             
@@ -505,6 +518,29 @@ function SHONiR_Token_Fnc(){
 
 }
 
+function SHONiR_Split_Fullname_Fnc($SHONiR_Name) {
+
+    $SHONiR_Firstname = '';
+
+    $SHONiR_Lastname = '';
+
+    $SHONiR_Name = trim($SHONiR_Name);
+    
+    if(strlen($SHONiR_Name)>0){
+
+      $SHONiR_Name_Parts = explode(' ', $SHONiR_Name);
+
+        $SHONiR_Firstname = $SHONiR_Name_Parts[0];
+
+      $SHONiR_Pos = '/'.preg_quote($SHONiR_Firstname, '/').'/';
+
+      $SHONiR_Lastname = preg_replace($SHONiR_Pos, "", $SHONiR_Name, 1);
+
+  }
+    
+    return array($SHONiR_Firstname, $SHONiR_Lastname);
+}
+
 function SHONiR_CSRF_Fnc($SHONiR_Do){
 
     $SHONiR_Data = FALSE;
@@ -558,7 +594,7 @@ function SHONiR_Get_Fnc($SHONiR_Var, $SHONiR_Filter = null){
 
 }
 
-function SHONiR_Post_Fnc($SHONiR_Var, $SHONiR_Filter = null){
+function SHONiR_Post_Fnc($SHONiR_Var, $SHONiR_Filter = null){   
 
 
  if($SHONiR_Var){
@@ -571,7 +607,7 @@ function SHONiR_Post_Fnc($SHONiR_Var, $SHONiR_Filter = null){
 
  }
 
- if($SHONiR_Data){
+ if($SHONiR_Data && $SHONiR_Filter != 'unescapes'){    
 
     if(!is_array($SHONiR_Data)){
 
@@ -581,7 +617,7 @@ function SHONiR_Post_Fnc($SHONiR_Var, $SHONiR_Filter = null){
 
  }
  
- if($SHONiR_Filter){
+ if($SHONiR_Filter != null && $SHONiR_Filter != 'unescapes'){
 
     if(!is_array($SHONiR_Data)){
 
@@ -589,6 +625,10 @@ function SHONiR_Post_Fnc($SHONiR_Var, $SHONiR_Filter = null){
 
 }
 
+}
+
+if($SHONiR_Data && $SHONiR_Filter == 'unescapes'){
+$SHONiR_Data = str_replace("&lt;" , "&amp;lt;", $SHONiR_Data);
 }
 
  return $SHONiR_Data;
@@ -609,13 +649,14 @@ function SHONiR_Render_Fnc_Main($SHONiR_File, $SHONiR_Vars = null, $SHONiR_Path 
 
       if(empty($SHONiR_Path)){
 
-      $SHONiR_Full_File = SHONiR_ROOT."views/".SHONiR_VIEW."/".strtolower($SHONiR_File).".php";
+      $SHONiR_Full_File = SHONiR_ROOT."views/".SHONiR_VIEW."/".SHONiR_THEME."/".strtolower($SHONiR_File).".php";
 
       }else{
 
         $SHONiR_Full_File = SHONiR_ROOT.$SHONiR_Path."/".strtolower($SHONiR_File).".php";
 
       }
+
 
       if (!file_exists($SHONiR_Full_File))  
 { 
@@ -736,13 +777,36 @@ function SHONiR_Referer_Fnc(){
 
 }
 
+
+function SHONiR_Get_Visitor_Fnc($SHONiR_Column, $SHONiR_Value){
+
+    $SHONiR_Data = array();
+
+    $SHONiR_Query_Visitors = SHONiR_Query_Fnc("select * from tbl_visitors where ".$SHONiR_Column."='".$SHONiR_Value."'");
+
+    $SHONiR_Row_Visitors = SHONiR_Row_Fnc($SHONiR_Query_Visitors);
+
+    if($SHONiR_Row_Visitors > 0 ){
+    
+        $SHONiR_Data = SHONiR_Fetch_Fnc($SHONiR_Query_Visitors);
+
+    }else{
+
+        $SHONiR_Data = FALSE;
+
+    }
+
+  return $SHONiR_Data;
+  
+}
+
 function SHONiR_IP_Info_Fnc($SHONiR_IP){
 
     $SHONiR_Data = array();
 
     if(SHONiR_LOCAL){
 
-        $SHONiR_IP_Info = json_decode('{"country_name":"PAKISTAN","country_code":"PK","city":"Sialkot","ip":"333.333.6426"}');
+        $SHONiR_IP_Info = json_decode('{"country_name":"SERVER","country_code":"XX","city":"localhost","ip":"127.0. 0.1"}');
 
     }else{
 
@@ -833,9 +897,9 @@ function SHONiR_Slug_Fnc($SHONiR_Text){
 }
 
 function SHONiR_T2H_Fnc($SHONiR_Content){
-    $SHONiR_Data = '';
-    if(strlen($SHONiR_Content)>1){
-    $SHONiR_Data = str_replace("\'" , "&#039;", $SHONiR_Content);
+    $SHONiR_Data = $SHONiR_Content;
+    if(strlen($SHONiR_Data)>1){
+    $SHONiR_Data = str_replace("\'" , "&#039;", $SHONiR_Data);
    $SHONiR_Data = str_replace("'" , "&#039;", $SHONiR_Data);
    $SHONiR_Data = str_replace('\r\n','<br/>', $SHONiR_Data);
     $SHONiR_Data = str_replace("\r\n",'<br/>', $SHONiR_Data);
@@ -844,20 +908,36 @@ function SHONiR_T2H_Fnc($SHONiR_Content){
     $SHONiR_Data = str_replace('\n','<br/>', $SHONiR_Data);
     $SHONiR_Data = str_replace("\n",'<br/>', $SHONiR_Data);
     $SHONiR_Data = nl2br($SHONiR_Data);
+    $SHONiR_Data = str_replace("&lt;" , "&amp;lt;", $SHONiR_Data); 
     }
     return $SHONiR_Data;
 }
 
 function SHONiR_H2T_Fnc($SHONiR_Content){
-    $SHONiR_Data = '';
-    if(strlen($SHONiR_Content)>1){
-        $SHONiR_Data = str_replace("\'" , "'", $SHONiR_Content);
+    $SHONiR_Data = $SHONiR_Content;
+    if(strlen($SHONiR_Data)>1){
+        $SHONiR_Data = str_replace("\'" , "'", $SHONiR_Data);
    $SHONiR_Data = str_replace("&#039;" , "'", $SHONiR_Data);
    $SHONiR_Data = str_replace('\r\n',"\r\n", $SHONiR_Data);
     $SHONiR_Data = str_replace('<br/>',"\r\n", $SHONiR_Data);
-    $SHONiR_Data = str_replace("<br/>","\r\n", $SHONiR_Data);        
+    $SHONiR_Data = str_replace("<br/>","\r\n", $SHONiR_Data); 
     $SHONiR_Data = strip_tags($SHONiR_Data);
     }    
+    return $SHONiR_Data;
+}
+
+
+function SHONiR_Text_Limit_Fnc($SHONiR_Content, $SHONiR_Limit=225, $SHONiR_Extra=' ....  '){
+    $SHONiR_Data = '';
+    $SHONiR_Data = strip_tags($SHONiR_Content);
+if (strlen($SHONiR_Data) > $SHONiR_Limit) {
+
+    $SHONiR_Data_Cut = substr($SHONiR_Data, 0, $SHONiR_Limit);
+    $SHONiR_Data_End = strrpos($SHONiR_Data_Cut, ' ');
+
+    $SHONiR_Data = $SHONiR_Data_End? substr($SHONiR_Data_Cut, 0, $SHONiR_Data_End) : substr($SHONiR_Data_Cut, 0);
+    $SHONiR_Data .= $SHONiR_Extra;
+}
     return $SHONiR_Data;
 }
 
@@ -971,7 +1051,7 @@ function SHONiR_Time_Difference_Fnc($SHONiR_Time_One, $SHONiR_Time_Two, $SHONiR_
 
     if (file_exists($SHONiR_Source)) {
 
-        $filetype = substr($imagesource,strlen($imagesource)-4,4);
+        $filetype = substr($SHONiR_Source,strlen($SHONiR_Source)-4,4);
 
         $filetype = strtolower($filetype);
 
@@ -1037,11 +1117,11 @@ if ( $width > $maxDim || $height > $maxDim ) {
 
     if(count($SHONiR_Uploads) > 0){
 
-        $imagesource = SHONiR_ROOT.'media/uploads/'.$SHONiR_Uploads[0]['upload_file'];
+        $SHONiR_Source = SHONiR_ROOT.'media/uploads/'.$SHONiR_Uploads[0]['upload_file'];
 
-        if (file_exists($imagesource)) {
+        if (file_exists($SHONiR_Source)) {
 
-            $filetype = substr($imagesource,strlen($imagesource)-4,4);
+            $filetype = substr($SHONiR_Source,strlen($SHONiR_Source)-4,4);
 
     $filetype = strtolower($filetype);
 
@@ -1052,22 +1132,22 @@ if ( $width > $maxDim || $height > $maxDim ) {
 
     if($filetype == ".gif"){
         $header="image/gif";
-    $image = @imagecreatefromgif($imagesource);
+    $image = @imagecreatefromgif($SHONiR_Source);
 } 
 if($filetype == ".jpg" || $filetype == "jpeg" ){
-    $header="image/jpeg";$image = @imagecreatefromjpeg($imagesource);
+    $header="image/jpeg";$image = @imagecreatefromjpeg($SHONiR_Source);
 } 
 if($filetype == ".png"){$header="image/png";
-    $image = @imagecreatefrompng($imagesource);
+    $image = @imagecreatefrompng($SHONiR_Source);
 } 
 
 if (!$image){die();}
 
-$imagesource = SHONiR_ROOT.'media/uploads/'.SHONiR_SETTINGS['config_watermark'];
+$SHONiR_Source = SHONiR_ROOT.'media/uploads/'.SHONiR_SETTINGS['config_watermark'];
 
-if (file_exists($imagesource)) {
+if (file_exists($SHONiR_Source)) {
 
-$watermark = @imagecreatefrompng($imagesource);
+$watermark = @imagecreatefrompng($SHONiR_Source);
 
 $imagewidth = imagesx($image);$imageheight = imagesy($image); 
 
@@ -1129,14 +1209,14 @@ imagedestroy($watermark);
     
     if($SHONiR_Default){
 
-        $imagesource = SHONiR_ROOT.'media/uploads/n-a.png';
+        $SHONiR_Source = SHONiR_ROOT.'media/uploads/n-a.png';
 
-        if (file_exists($imagesource)) { 
+        if (file_exists($SHONiR_Source)) { 
 
             @ob_get_clean();
             header("Content-Type: image/png");
 
-            $image = @imagecreatefrompng($imagesource);
+            $image = @imagecreatefrompng($SHONiR_Source);
 
             imagejpeg($image);
 
@@ -1156,16 +1236,26 @@ imagedestroy($watermark);
 }
 
 
-function SHONiR_Write_Uploads_Fnc($SHONiR_Source){
+function SHONiR_Write_Uploads_Fnc($SHONiR_Source, $SHONiR_CDN = TRUE){
+
+if($SHONiR_CDN){
+
+    $SHONiR_CDN = SHONiR_CDN_IMG;
+
+}else{
+
+    $SHONiR_CDN = SHONiR_BASE;
+
+}
 
 if($SHONiR_Source){
 
-return (SHONiR_SETTINGS['config_auto_watermark']=="TRUE")?SHONiR_CDN_IMG.'Watermark/'.$SHONiR_Source:SHONiR_CDN_IMG.'media/uploads/'.$SHONiR_Source;
+return (SHONiR_SETTINGS['config_auto_watermark']=="TRUE")?$SHONiR_CDN.'Watermark/'.$SHONiR_Source:$SHONiR_CDN.'media/uploads/'.$SHONiR_Source;
 
 
 }else{
 
-    return SHONiR_CDN_IMG.'media/uploads/n-a.png';
+    return $SHONiR_CDN.'media/uploads/n-a.png';
 }
 
 }
@@ -1184,42 +1274,393 @@ function SHONiR_Reference_Fnc(){
     return $SHONiR_Return;
 
 }
-  function SHONiR_Uploads_Fnc($SHONiR_ID, $SHONiR_Type = FALSE){
 
-    if($SHONiR_Type){
+function SHONiR_Save_Tags_Fnc($SHONiR_ID, $SHONiR_Type, $SHONiR_Tag){
 
-    $SHONiR_Query_Uploads_Extra = " parent_type ='".$SHONiR_Type."' and parent_id=".$SHONiR_ID;
+    $SHONiR_Fnc = "SHONiR_".ucfirst($SHONiR_Type)."_Details_Fnc";
 
-  }else{
+if (function_exists($SHONiR_Fnc)) {
 
-    $SHONiR_Query_Uploads_Extra = " upload_id =".$SHONiR_ID;
+    $SHONiR_Data = call_user_func($SHONiR_Fnc, $SHONiR_ID, '', SHONiR_LANGUAGE['language_id']);
 
-  }  
+    if($SHONiR_Data){
 
-  $SHONiR_Query_Uploads = SHONiR_Query_Fnc("select * from tbl_uploads where ".$SHONiR_Query_Uploads_Extra." order by sort_order asc;" );
+    if (strpos($SHONiR_Data['tag'], $SHONiR_Tag) === false) {
 
-  $SHONiR_Row_Uploads = SHONiR_Row_Fnc($SHONiR_Query_Uploads);
+    if($SHONiR_Data['tag']){
 
-  if($SHONiR_Row_Uploads > 0 ){
-
-    while($SHONiR_Fetch_Uploads = SHONiR_Fetch_Fnc($SHONiR_Query_Uploads))
-    {
-        
-        $SHONiR_Return[] = $SHONiR_Fetch_Uploads;
+        $SHONiR_Tag .= ', '. $SHONiR_Data['tag'];
 
     }
+    
+    SHONiR_Query_Fnc("update tbl_".$SHONiR_Type."s_description set tag='".$SHONiR_Tag."'  where language_id=".SHONiR_LANGUAGE['language_id']." and ".$SHONiR_Type."_id=".$SHONiR_ID);
 
-    }else{
-
-        $SHONiR_Return = array();
+}
 
     }
-
-    return $SHONiR_Return;
-
 
 
 }
+
+$SHONiR_Get_Tags_Fnc = SHONiR_Tags_Fnc("keyword like '%".$SHONiR_Tag."%'");
+
+if(!$SHONiR_Get_Tags_Fnc){
+
+    SHONiR_Query_Fnc("insert into tbl_tags (keyword, hits, add_ip, last_hit_ip, add_time, last_hit) values ('".$SHONiR_Tag."', 1, '".SHONiR_IP."', '".SHONiR_IP."', ".time().", ".time()." )");
+
+}else{
+
+   SHONiR_Query_Fnc("update tbl_tags set hits=hits+1, last_hit_ip='".SHONiR_IP."', last_hit=".time()."  where tag_id=".$SHONiR_Get_Tags_Fnc[0]['tag_id']);
+ 
+
+}
+
+
+}
+
+
+function SHONiR_Tags_Fnc($SHONiR_Where = FALSE, $SHONiR_Order = 'hits', $SHONiR_By = 'desc', $SHONiR_Limit = FALSE){
+
+
+    $SHONiR_SQL_Tags_Limit = '';
+
+    $SHONiR_SQL_Tags_Sort = " order by ".$SHONiR_Order."  ".$SHONiR_By." ";
+
+    if($SHONiR_Limit !== FALSE){
+
+    $SHONiR_SQL_Tags_Limit = "  limit ".$SHONiR_Limit;
+
+    }
+
+    $SHONiR_SQL_Tags_Where = '';
+
+    if($SHONiR_Where !== FALSE){
+
+        $SHONiR_SQL_Tags_Where .= " where ".$SHONiR_Where;
+    
+        }
+
+    $SHONiR_SQL_Tags = "select * from tbl_tags ";
+
+    $SHONiR_Query_Run = $SHONiR_SQL_Tags.$SHONiR_SQL_Tags_Where.$SHONiR_SQL_Tags_Sort.$SHONiR_SQL_Tags_Limit;
+    
+    $SHONiR_Query_Tags = SHONiR_Query_Fnc($SHONiR_Query_Run);
+    
+    $SHONiR_Row_Tags = SHONiR_Row_Fnc($SHONiR_Query_Tags);
+    
+    if($SHONiR_Row_Tags > 0 ){
+    
+    while($SHONiR_Fetch_Tags = SHONiR_Fetch_Fnc($SHONiR_Query_Tags))
+    {
+        
+        $SHONiR_Return[] = $SHONiR_Fetch_Tags;
+    
+    }
+    
+    }else{
+    
+        $SHONiR_Return = array();
+    
+    }
+    
+    return $SHONiR_Return;
+    
+    
+    
+    }
+
+    function SHONiR_Get_Options_Fnc($SHONiR_parent_id, $SHONiR_parent_type, $All_Languages = TRUE){
+
+        $SHONiR_Query_Options_Description_Extra = '';
+        $SHONiR_More = array();
+
+        if($All_Languages != TRUE){
+
+            $SHONiR_Query_Options_Description_Extra = " and language_id=".$All_Languages;
+
+        }
+
+        $SHONiR_Query_Options = SHONiR_Query_Fnc("select * from tbl_options where parent_id=".$SHONiR_parent_id." and parent_type='".$SHONiR_parent_type."' order by sort_order asc;" );
+
+        $SHONiR_Row_Options = SHONiR_Row_Fnc($SHONiR_Query_Options);
+      
+        if($SHONiR_Row_Options > 0 ){
+      
+          while($SHONiR_Fetch_Options = SHONiR_Fetch_Fnc($SHONiR_Query_Options))
+          {
+
+            $SHONiR_Options_Description = array();       
+
+   $SHONiR_Query_Options_Description = SHONiR_Query_Fnc("select * from tbl_options_description where option_id=".$SHONiR_Fetch_Options['option_id']." ".$SHONiR_Query_Options_Description_Extra);
+
+        $SHONiR_Row_Options_Description = SHONiR_Row_Fnc($SHONiR_Query_Options_Description);
+
+        if($SHONiR_Row_Options_Description > 0 ){
+      
+            while($SHONiR_Fetch_Options_Description = SHONiR_Fetch_Fnc($SHONiR_Query_Options_Description))
+            {
+
+$SHONiR_Options_Description['name_'.$SHONiR_Fetch_Options_Description['language_id']] = $SHONiR_Fetch_Options_Description['name'];
+
+            }
+
+        }
+
+        $SHONiR_Options_Value = array();
+
+        $SHONiR_Query_Options_Value = SHONiR_Query_Fnc("select * from tbl_options_value where option_id=".$SHONiR_Fetch_Options['option_id']);
+
+        $SHONiR_Row_Options_Value = SHONiR_Row_Fnc($SHONiR_Query_Options_Value);
+
+        if($SHONiR_Row_Options_Value > 0 ){ 
+
+            while($SHONiR_Fetch_Options_Value = SHONiR_Fetch_Fnc($SHONiR_Query_Options_Value))
+          {
+
+            $SHONiR_Options_Value_Description = array();  
+            
+            $SHONiR_More['image'] = '';
+
+            $SHONiR_Query_Options_Value_Description = SHONiR_Query_Fnc("select * from tbl_options_value_description where value_id=".$SHONiR_Fetch_Options_Value['value_id']." ".$SHONiR_Query_Options_Description_Extra);
+         
+                 $SHONiR_Row_Options_Value_Description = SHONiR_Row_Fnc($SHONiR_Query_Options_Value_Description);
+         
+                 if($SHONiR_Row_Options_Value_Description > 0 ){
+               
+                     while($SHONiR_Fetch_Options_Value_Description = SHONiR_Fetch_Fnc($SHONiR_Query_Options_Value_Description))
+                     {
+         
+         $SHONiR_Options_Value_Description['name_'.$SHONiR_Fetch_Options_Value_Description['language_id']] = $SHONiR_Fetch_Options_Value_Description['name'];
+         
+                     }
+         
+                 }
+
+                 $SHONiR_More['image'] = '';
+
+                 $SHONiR_Value_Uploads = SHONiR_Uploads_Fnc($SHONiR_Fetch_Options_Value['value_id'], 'option_value');
+
+    if($SHONiR_Value_Uploads){
+
+        $SHONiR_More['image'] = (SHONiR_SETTINGS['config_auto_watermark']=="TRUE" && !$GLOBALS['SHONiR_APANEL'])?$SHONiR_Value_Uploads[0]['upload_id']:$SHONiR_Value_Uploads[0]['upload_file'];       
+
+     }else{
+
+        $SHONiR_More['image'] = 'n-a.png';
+
+     }
+                 
+$SHONiR_Options_Value[] = array_merge($SHONiR_Fetch_Options_Value, $SHONiR_Options_Value_Description, $SHONiR_More);
+
+
+          }
+           
+
+        }
+
+        $SHONiR_Options_Value['option_value'] = $SHONiR_Options_Value;
+  
+              $SHONiR_Return[] = array_merge($SHONiR_Fetch_Options, $SHONiR_Options_Description, $SHONiR_Options_Value);
+      
+          }
+      
+          }else{
+      
+              $SHONiR_Return = array();
+      
+          }
+      
+          return $SHONiR_Return;
+
+    }
+
+    function SHONiR_Options_Add_Fnc($SHONiR_parent_type, $SHONiR_parent_id, $SHONiR_options){
+
+if($SHONiR_options && $SHONiR_parent_type && $SHONiR_parent_id){
+
+    $SHONiR_All_Languages = SHONiR_Languages_Fnc(FALSE, 1, 'asc');
+    
+        foreach ($SHONiR_options as $okey => $option){
+
+            $SHONiR_Extra_Column = '';
+            $SHONiR_Extra_Value = '';
+
+            $SHONiR_Get_Option = FALSE;
+
+            $SHONiR_Mum = array("text", "textarea", "file");
+
+         if(in_array($option['type'], $SHONiR_Mum, TRUE)){
+
+            $SHONiR_Extra_Column .= ", minimum, maximum";
+            $SHONiR_Extra_Value .= ", ".$option['minimum'].", ".$option['maximum'];
+
+            if($option['type']=='file'){
+
+                $SHONiR_Extra_Column .= ", further_value";
+                $SHONiR_Extra_Value .= ", '".$option['further_value']."' ";
+
+            }
+            
+         }
+
+         if(isset($option['option_id'])){            
+
+            $SHONiR_Get_Option =  SHONiR_Get_Option_Fnc($option['option_id']);
+
+         }
+         
+         if($SHONiR_Get_Option){
+
+  SHONiR_Query_Fnc("update tbl_options set required=". $option['required'] .", sort_order=". $option['sort_order'] ." where option_id=".$SHONiR_Get_Option['option_id']);
+
+         }else{
+
+  SHONiR_Query_Fnc("insert into tbl_options (option_type, required, parent_id, parent_type, sort_order, add_time ".$SHONiR_Extra_Column.") values ('".$option['option_type']."', ".$option['required'].", ".$SHONiR_parent_id.", '".$SHONiR_parent_type."', ".$option['sort_order'].",  ".time()." ".$SHONiR_Extra_Value.")");
+
+}
+
+echo 'ok';
+
+         exit;
+
+  $SHONiR_option_id = SHONiR_Insert_ID_Fnc();
+
+    foreach($SHONiR_All_Languages as $language)
+{
+
+   SHONiR_Query_Fnc("insert into tbl_options_description (option_id, language_id, name) values (".$SHONiR_option_id.", ".$language['language_id'].", '".$option['name_'.$language['language_id']]."')");
+
+}
+
+  if(!in_array($option['option_type'], $SHONiR_Mum, TRUE)){
+
+         if(isset($option['option_value']) && !empty($option['option_value'])){
+
+            $SHONiR_option_value = $option['option_value'];
+
+            foreach ($SHONiR_option_value as $key => $value){
+
+                $SHONiR_stock = $value['stock'];
+                $SHONiR_cost_price = SHONiR_Get_Price_Fnc($value['cost_price']);
+                $SHONiR_selling_price = SHONiR_Get_Price_Fnc($value['selling_price']);
+                $SHONiR_points = $value['points'];
+                $SHONiR_weight = $value['weight'];
+                $SHONiR_length = $value['length'];
+                $SHONiR_width = $value['width'];
+                $SHONiR_height = $value['height'];
+                $SHONiR_cost_price_prefix = $value['cost_price_prefix'];
+                $SHONiR_selling_price_prefix = $value['selling_price_prefix'];
+                $SHONiR_points_prefix = $value['points_prefix'];
+                $SHONiR_weight_prefix = $value['weight_prefix'];
+                $SHONiR_length_prefix = $value['length_prefix'];
+                $SHONiR_width_prefix = $value['width_prefix'];
+                $SHONiR_height_prefix = $value['height_prefix'];
+                $SHONiR_subtract = $value['subtract'];
+                $SHONiR_sort_order = $value['sort_order'];
+
+                SHONiR_Query_Fnc("insert into tbl_options_value (option_id, stock, cost_price, selling_price, points, weight, length, width, height, cost_price_prefix, selling_price_prefix, points_prefix, weight_prefix, length_prefix, width_prefix, height_prefix, subtract, sort_order, add_time) values (".$SHONiR_option_id.", ".$SHONiR_stock.", '".$SHONiR_cost_price."', '".$SHONiR_selling_price."', ".$SHONiR_points.", '".$SHONiR_weight."', '".$SHONiR_length."', '".$SHONiR_width."', '".$SHONiR_height."', '".$SHONiR_cost_price_prefix."', '".$SHONiR_selling_price_prefix."', '".$SHONiR_points_prefix."', '".$SHONiR_weight_prefix."', '".$SHONiR_length_prefix."', '".$SHONiR_width_prefix."', '".$SHONiR_height_prefix."', ".$SHONiR_subtract.", ".$SHONiR_sort_order.", ".time().")");
+
+                $SHONiR_option_value_id = SHONiR_Insert_ID_Fnc();
+
+                foreach($SHONiR_All_Languages as $language)
+{
+
+   SHONiR_Query_Fnc("insert into tbl_options_value_description (value_id, language_id, name) values (".$SHONiR_option_value_id.", ".$language['language_id'].", '".$value['name_'.$language['language_id']]."')");
+
+}
+
+                    $SHONiR_file = @$_FILES['additional_option' . $okey . 'option_value' . $key . 'file'];
+
+                    $SHONiR_file_name = $SHONiR_file['name'];
+
+                    if($SHONiR_file_name){
+
+                    $SHONiR_file_pos = strrpos($SHONiR_file_name, '.');
+
+                    if(empty($SHONiR_file_name) && empty($SHONiR_file_pos)){
+
+                        $SHONiR_file_final = '';
+                       
+                        }else{
+                       
+                         $SHONiR_file_extension = substr($SHONiR_file_name, $SHONiR_file_pos, strlen($SHONiR_file_name));  
+                       
+                         $SHONiR_file_final = SHONiR_Slug_Fnc(str_replace($SHONiR_file_extension, '', $SHONiR_file_name));
+                       
+                        $SHONiR_file_final = $SHONiR_file_final."-".SHONiR_Counter_Fnc('uploads').$SHONiR_file_extension;
+                       
+                       }
+
+                       if($SHONiR_file_final)
+{
+
+SHONiR_Query_Fnc("insert into tbl_uploads (upload_file, sort_order, parent_id, parent_type, add_time) values ('".$SHONiR_file_final."', ".$SHONiR_sort_order.", ".$SHONiR_option_value_id.", 'option_value', ".time().")");
+
+move_uploaded_file($SHONiR_file["tmp_name"], SHONiR_ROOT.'media/uploads/'.$SHONiR_file_final);
+
+if(SHONiR_SETTINGS['config_auto_resize']){
+   
+SHONiR_Resize_Fnc(SHONiR_ROOT.'media/uploads/'.$SHONiR_file_final);
+
+}
+
+}
+
+
+}               
+
+
+            }
+
+         }
+         
+        }
+
+        }
+
+    }
+
+    }
+
+
+    function SHONiR_Uploads_Fnc($SHONiR_ID = FALSE, $SHONiR_Type = FALSE){
+
+        if($SHONiR_Type){
+    
+        $SHONiR_Query_Uploads_Extra = "where parent_type ='".$SHONiR_Type."' and parent_id=".$SHONiR_ID;
+    
+      }elseif($SHONiR_ID){
+    
+        $SHONiR_Query_Uploads_Extra = "where upload_id =".$SHONiR_ID;
+    
+      }else{
+    
+        $SHONiR_Query_Uploads_Extra = '';
+    
+      }  
+    
+      $SHONiR_Query_Uploads = SHONiR_Query_Fnc("select * from tbl_uploads ".$SHONiR_Query_Uploads_Extra." order by sort_order asc;" );
+    
+      $SHONiR_Row_Uploads = SHONiR_Row_Fnc($SHONiR_Query_Uploads);
+    
+      if($SHONiR_Row_Uploads > 0 ){
+    
+        while($SHONiR_Fetch_Uploads = SHONiR_Fetch_Fnc($SHONiR_Query_Uploads))
+        {
+            
+            $SHONiR_Return[] = $SHONiR_Fetch_Uploads;
+    
+        }
+    
+        }else{
+    
+            $SHONiR_Return = array();
+    
+        }
+    
+        return $SHONiR_Return;    
+    
+    }
 
 function SHONiR_Valid_XML_Fnc($SHONiR_Content)
 {
@@ -1392,6 +1833,23 @@ if($SHONiR_Page_No > 1){
 
     
 
+
+}
+
+
+function SHONiR_Get_Query_String_Fnc($url = false) {
+
+    if(!$url && !$url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : false) {
+        return '';
+    }
+
+    $parts_url = parse_url($url);
+    $query = isset($parts_url['query']) ? $parts_url['query'] : (isset($parts_url['fragment']) ? $parts_url['fragment'] : '');
+    if(!$query) {
+        return '';
+    }
+    parse_str($query, $parts_query);
+    return isset($parts_query['q']) ? $parts_query['q'] : (isset($parts_query['p']) ? $parts_query['p'] : '');
 
 }
 

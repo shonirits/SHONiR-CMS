@@ -5,7 +5,3 @@ Disallow: /Checkout
 Disallow: /Ajax/
 Disallow: /Cart/
 Disallow: /Checkout/
-
-Sitemap: Feeds/sitemap.xml
-Sitemap: Feeds/products.xml
-Sitemap: Feeds/rss.xml
