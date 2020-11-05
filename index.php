@@ -494,7 +494,6 @@ SHONiR_Counter_Fnc('visitors');
 
 $SHONiR_Visitor = SHONiR_Get_Visitor_Fnc('session_id', $GLOBALS['SHONiR_SESSION_ID']);
 
-
 define('SHONiR_SESSION_ID', $GLOBALS['SHONiR_SESSION_ID']);
 
 if(SHONiR_SETTINGS['config_cache'] == "TRUE" && $GLOBALS['SHONiR_APANEL'] == FALSE && $GLOBALS['SHONiR_CACHE'] == TRUE){
