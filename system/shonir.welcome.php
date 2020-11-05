@@ -10,9 +10,37 @@ function SHONiR_Welcome_Fnc_Render(){
 
     $SHONiR_Data["Featured_Categories"] = SHONiR_Get_Categories_Fnc(0, "c.status=1 and c.featured=1");
 
-    $SHONiR_Data["Featured_Products"] = SHONiR_Get_Products_Fnc(TRUE, 0, "p.status=1 and p.featured=1", "p.add_time", "desc", SHONiR_SETTINGS['config_records_limit']);
+    $SHONiR_Escape_Rows = '';
+
+    $SHONiR_Data["New_Products"] = SHONiR_Get_Products_Fnc(TRUE, 0, "p.status=1 and p.listed=1", "p.add_time", "desc", SHONiR_SETTINGS['config_records_limit']);
+
+    if($SHONiR_Data["New_Products"]){
+      foreach ($SHONiR_Data["New_Products"] as $New_key => $New_value)
+              {
+  
+                  $SHONiR_Escape_Rows .= ' and p.product_id<>'.$New_value['product_id'];
+              }
+         }
+
+    $SHONiR_Data["Featured_Products"] = SHONiR_Get_Products_Fnc(TRUE, 0, "p.status=1 and p.listed=1 and p.featured=1", "p.add_time", "desc", SHONiR_SETTINGS['config_records_limit']);
+
+    if($SHONiR_Data["Featured_Products"]){
+      foreach ($SHONiR_Data["Featured_Products"] as $Featured_key => $Featured_value)
+              {
+  
+                  $SHONiR_Escape_Rows .= ' and p.product_id<>'.$Featured_value['product_id'];
+              }
+         }
 
     $SHONiR_Data["Trending_Products"] = SHONiR_Get_Products_Fnc(TRUE, 0, "p.status=1 and p.listed=1", "p.viewed desc, p.hits", "desc", SHONiR_SETTINGS['config_records_limit']);
+
+    if($SHONiR_Data["Trending_Products"]){
+      foreach ($SHONiR_Data["Trending_Products"] as $Trending_key => $Trending_value)
+              {
+  
+                  $SHONiR_Escape_Rows .= ' and p.product_id<>'.$Trending_value['product_id'];
+              }
+         }
 
     $SHONiR_Data["Main_Banners"] = SHONiR_Get_Banners_Fnc(TRUE, TRUE, "parent_id='homepage_main' and b.status=1  and b.listed=1 ", 'b.viewed', 'asc');
 
