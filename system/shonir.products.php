@@ -347,7 +347,7 @@ SHONiR_Resize_Fnc(SHONiR_ROOT.'media/uploads/'.$SHONiR_files_final);
 }
 
 }
-exit;
+//exit;
    $SHONiR_Alert['type'] = 'success';
    $SHONiR_Alert['message'] = 'New Product has been added successfully.';
    SHONiR_Session_Write_Fnc('SHONiR_Alert', $SHONiR_Alert);
