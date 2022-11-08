@@ -60,7 +60,7 @@
     "autoprefixer": "^6.3.6",
     "babel-core": "6.24.1",
     "babel-eslint": "7.2.2",
-    "babel-loader": "6.4.1",
+    "babel-loader": "9.1.0",
     "babel-plugin-add-module-exports": "0.2.1",
     "babel-preset-es2015": "6.24.1",
     "browser-sync": "^2.19.0",
@@ -84,12 +84,12 @@
     "postcss-loader": "^1.0.0",
     "pre-commit": "^1.2.2",
     "prettier-standard": "^3.0.1",
-    "sass-loader": "^4.0.1",
+    "sass-loader": "^13.1.0",
     "standard": "^10.0.2",
     "standard-loader": "^6.0.1",
     "style-loader": "^0.13.1",
     "web-push": "^3.2.2",
-    "webpack": "2.4.1",
+    "webpack": "5.74.0",
     "yargs": "7.0.2"
   }
 }
