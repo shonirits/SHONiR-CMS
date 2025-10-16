@@ -1,1 +1,0 @@
-<script>var options = {bg: '#ff0000'};var nanobar = new Nanobar();			nanobar.go(20); </script><div id="shonirall" style="display:none">
