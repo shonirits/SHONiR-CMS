@@ -1147,7 +1147,7 @@ function load_assets_fnc() {
   `https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.css`,
   `https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css`,
   `https://cdn.jsdelivr.net/npm/star-rating-svg@3.5.0/src/css/star-rating-svg.min.css`,
-  `${css_url}public/css/frontend/default.css`,
+  `https://cdn.jsdelivr.net/gh/shonirits/SHONiR-CMS@master/public/css/frontend/default.css`,
   `${css_url}public/css/frontend/${frontend_theme}/theme.css`,
 ];
 
