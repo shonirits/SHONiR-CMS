@@ -71,6 +71,7 @@ Get the latest release from GitHub:
 
 Explore the live demo:  
 🔗 [Frontend Demo](https://8.shonir.com/shonir-cms/)  https://8.shonir.com/shonir-cms/
+
 🔐 [Admin Panel](https://8.shonir.com/shonir-cms/Users) https://8.shonir.com/shonir-cms/Users
 
 **Login Credentials:**  
