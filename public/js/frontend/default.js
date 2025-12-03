@@ -224,7 +224,7 @@ const try_int_fnc = () => {
 
     let offset = get_timezone_offset_fnc();
 
-  let url = base_url+"Ajax/initialize";
+  let url = ccp.base_url+"Ajax/initialize";
   var visitor_data = {
     url: window.location.href,
     user_agent: navigator.userAgent,
@@ -312,8 +312,8 @@ const try_int_fnc = () => {
             quick_cart_content += `<p><span class="title">Subtotal:</span> <span class="subtotal">${total_price.toFixed(2)}</span></p>`;
             }
         quick_cart_content += `<div class="d-flex gap-3 mt-3">
-            <a href="${base_url}Cart" class="btn btn-outline-primary w-50">View Cart</a>
-            <a href="${base_url}Checkout" class="btn btn-success w-50">Send Enquiry</a>
+            <a href="${ccp.base_url}Cart" class="btn btn-outline-primary w-50">View Cart</a>
+            <a href="${ccp.base_url}Checkout" class="btn btn-success w-50">Send Enquiry</a>
         </div>
             </div>
     </div>`;
@@ -337,7 +337,7 @@ const try_int_fnc = () => {
            
            setTimeout(function() {
     d.ajax({
-        url: base_url+"Ajax/cron",
+        url: ccp.base_url+"Ajax/cron",
         method: "GET"
     });
 }, 19000);
@@ -356,7 +356,7 @@ const try_int_fnc = () => {
         d('#query-fld').autocomplete('destroy');
       }
 
-    let url = base_url+"Ajax/search";
+    let url = ccp.base_url+"Ajax/search";
     let data = {query: query_trim, token: token};
     let options = {
               type: "POST",
@@ -1148,7 +1148,7 @@ function load_assets_fnc() {
   `https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css`,
   `https://cdn.jsdelivr.net/npm/star-rating-svg@3.5.0/src/css/star-rating-svg.min.css`,
   `https://cdn.jsdelivr.net/gh/shonirits/SHONiR-CMS@master/public/css/frontend/default.min.css`,
-  `${css_url}public/css/frontend/${frontend_theme}/theme.css`,
+  `${ccp.css_url}public/css/frontend/${ccp.frontend_theme}/theme.css`,
 ];
 
   cssList.forEach(path => load_css_fnc(path));
@@ -1344,7 +1344,7 @@ function validate_date_fnc(e, format = 'dd-mm-yyyy') {
 
   function ajax_error_fnc(request_type, jqXhr, textStatus, errorMessage) {
   
-    dialog_fnc(first_capitalize_fnc(request_type+': '+textStatus), '<h1>'+errorMessage+'</h1><hr/><p>If you suspect an issue, please try again shortly.</p><p>If the problem continues, feel free to <a href="'+base_url+'Contact" class="link-primary">contact us</a> for assistance.</p>');
+    dialog_fnc(first_capitalize_fnc(request_type+': '+textStatus), '<h1>'+errorMessage+'</h1><hr/><p>If you suspect an issue, please try again shortly.</p><p>If the problem continues, feel free to <a href="'+ccp.base_url+'Contact" class="link-primary">contact us</a> for assistance.</p>');
 
   }
 
@@ -1356,7 +1356,7 @@ function validate_date_fnc(e, format = 'dd-mm-yyyy') {
 
   function likes_fnc(parent, parent_type, parent_id, token) {
 
-    let url = base_url+"Ajax/likes";
+    let url = ccp.base_url+"Ajax/likes";
     let data = {parent: parent, parent_type: parent_type, parent_id: parent_id, token: token};
     let options = {
               type: "POST",
@@ -1387,7 +1387,7 @@ function validate_date_fnc(e, format = 'dd-mm-yyyy') {
 
   function ratings_fnc(parent, parent_type, parent_id, scores, token) {
 
-    let url = base_url+"Ajax/ratings";
+    let url = ccp.base_url+"Ajax/ratings";
     let data = {parent: parent, parent_type: parent_type, parent_id: parent_id, scores: scores, token: token};
     let options = {
               type: "POST",
@@ -1423,7 +1423,7 @@ function sound_fnc(type = 'notification') {
   };
 
   const filePath = soundMap[type] || soundMap.notification;
-  const url = base_url + filePath;
+  const url = ccp.base_url + filePath;
 
   const sound = new Howl({ src: [url] });
 
@@ -1433,67 +1433,174 @@ function sound_fnc(type = 'notification') {
 }
 
 
-function product_quick_view_fnc(id, title, model, details, imgurl, producturl, token) {
+function item_quick_view_fnc(details, item_image, item_url, token) {
+  let id    = details.item_id;       
+  let title = details.title;         
+  let model = details.model;  
+  let spotlight = details.spotlight; 
+  let ratings = details.ratings;
+  let likes   = details.likes;
+  let price   = details.price;
+  let price_previous = details.price_previous;
+  let minimum = details.minimum;
+  let stock   = details.stock;
 
-  let current_title = d(document).attr('title');
-    let dialog_interval = setInterval(function() {
-        flash_title_fnc(current_title, title);
-    }, 1000);
+  let badgesHtml = '';
 
-    d('#' + id).remove(); 
+if (ccp.badge_sale === 'TRUE' && price < price_previous) {
+  badgesHtml += `<span class="badge sale">Sale</span>`;
+}
+if (ccp.badge_newbie === 'TRUE' && details.newbie) {
+  badgesHtml += `<span class="badge newbie">New</span>`;
+}
+if (ccp.badge_featured === 'TRUE' && details.featured) {
+  badgesHtml += `<span class="badge featured">Featured</span>`;
+}
+if (ccp.badge_hd === 'TRUE' && details.hd) {
+  badgesHtml += `<span class="badge hd">HD</span>`;
+}
+if (ccp.badge_lq === 'TRUE' && details.lq) {
+  badgesHtml += `<span class="badge lq">LQ</span>`;
+}
+if (ccp.badge_st === 'TRUE' && details.st) {
+  badgesHtml += `<span class="badge st">ST</span>`;
+}
 
-    var modalHtml = '<div class="modal product-modal fade" id="'+id+'" tabindex="-1" aria-labelledby="'+id+'Title" aria-hidden="true">'
-    + '<div class="modal-dialog modal-dialog-centered">'
-    + '<div class="modal-content">'
-    + '<button type="button" class="btn-close close" data-bs-dismiss="modal" aria-label="Close"></button>'
-    + '<div class="modal-body" id="item_'+id+'_zone">'
-    + '<div class="row">'
-    + '<div class="col-md-7">'
-    + '<div class="modal-image">'
-    + '<img class="img-fluid rounded" src="'+imgurl+'" alt="'+title+'">'
-    + '</div></div>'
-    + '<div class="col-md-5">'
-    + '<div class="product-short-details">'
-    + '<h2 class="product-title" id="'+id+'Title">'+title+'</h2>'
-    + '<p class="product-model">Model: '+model+'</p>'
-    + '<p class="product-short-description">'+details+'</p>'
-    + '<a href="javascript:void(0);" onclick="javascript:add2cart_fnc(\'' + id + '\', \'' + token + '\', event);" class="btn btn-main">Get Free Quote</a>'
-    + '<a href="'+producturl+'" class="btn btn-transparent">View Product Details</a>'
-    + '</div></div></div></div></div></div>';
 
-    d('body').append(modalHtml);
+  d('#' + id).remove(); 
 
-    var modal = new bootstrap.Modal(d('#' + id)[0], {
-  backdrop: 'static',
-  keyboard: false
-});
+  let ratingsHtml = '';
+  if (ccp.ratings === 'TRUE') {
+    ratingsHtml = `
+      <div class="ratings">
+        Rating: <span id="rate_item${id}" class="star-ratings"></span>
+        <span id="rate_live_item${id}" class="live-ratings">${ratings}</span>
+      </div>`;
+  }
 
-    modal.show();
+  let likesHtml = '';
+  if (ccp.likes === 'TRUE') {
+    let likeIcon = details.liked === 'true'
+      ? '<i class="fa-solid fa-thumbs-up"></i>'
+      : '<i class="fa-regular fa-thumbs-up"></i>';
+    likesHtml = `
+      <div class="likes">
+        Likes: 
+        <span class="do-likes" id="do_like_item${id}">${likeIcon}</span>
+        <span class="info-likes" id="info_like_item${id}">${likes}</span>
+      </div>`;
+  }
 
-    
+  let priceHtml = '';
+  if (ccp.price === 'TRUE') {
+    let currentPrice = parseFloat(price).toFixed(2);
+    let prevPrice = parseFloat(price_previous).toFixed(2);
+    priceHtml = `
+      <div class="price">
+        Price: US $ ${currentPrice} - ${price_previous > price ? prevPrice : currentPrice}
+      </div>`;
+  }
 
-    d('#' + id).on('hide.bs.modal', function (event) {
-    event.preventDefault(); 
-    var modalElement = d(this);
-    modalElement.addClass('closing'); 
-            clearInterval(dialog_interval);
-            d(document).attr('title', current_title);
-    setTimeout(() => {
-        let modalInstance = bootstrap.Modal.getInstance(modalElement[0]);
-        if (modalInstance) {
-            modalInstance.dispose(); 
-        }
-        modalElement.remove(); 
-        d('.modal-backdrop').remove();
-        d('body').removeClass('modal-open');
-        d('body').css({
-            'overflow': 'auto', 
-            'padding': '0px'
-        }); 
-    }, 175); 
+  let categoriesHtml = '';
+  if (details.categories && details.categories.length) {
+    categoriesHtml = `
+      <div class="categories">
+        <span>Categories:</span>
+        <ul>
+          ${details.categories.map(cat => `<li><a href="${cat.url}">${cat.name}</a></li>`).join('')}
+        </ul>
+      </div>`;
+  }
+
+  let modalHtml = `
+  <div class="modal item-modal fade t-items_details" id="${id}" tabindex="-1" aria-labelledby="${id}Title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <button type="button" class="btn-close close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-body" id="quick_view_item_${id}_zone">
+          <div class="row">
+            <div class="col-md-7">
+              <div class="modal-image item_badges">
+              ${badgesHtml}
+                <img class="img-fluid rounded" src="${item_image}" alt="${title}">
+                
+              </div>
+            </div>
+            <div class="col-md-5">
+              <form name="quick_view_item_${id}_frm" id="quick_view_item_${id}_frm" class="needs-validation" novalidate>
+                <div class="pinpoint">
+                  <h2 class="heading">${title}</h2>
+                  <span class="model">Model: ${model}</span>
+                  ${ratingsHtml}
+                  ${likesHtml}
+                  ${priceHtml}
+                  <div class="spotlight">${spotlight}</div>
+                  <div class="row quantity align-items-center">
+                    <div class="col-auto">
+                      <label for="quantity_${id}" class="col-form-label">Quantity:</label>
+                    </div>
+                    <div class="col-auto quantity">
+                      <input type="number" id="quantity_${id}" name="quantity" class="form-control"
+                        min="${minimum}" max="${stock}" step="1" value="${minimum}" inputmode="numeric" pattern="[0-9]*" required>
+                      <div class="invalid-feedback">
+                        There is a minimum ${minimum} & maximum ${stock} quantity limit for this product.
+                      </div>
+                    </div>
+                  </div>
+                  ${categoriesHtml}
+                  <button type="button" class="btn btn-main"
+                    onclick="javascript:add2cart_fnc('${id}', '${token}', event, true);"
+                    data-toggle="tooltip" data-placement="top" title="Get Free Quote">
+                    Get Free Quote
+                  </button>
+                  <a href="${item_url}" class="btn btn-transparent">View Product Details</a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  
+  d('body').append(modalHtml);
+  let modal = new bootstrap.Modal(d('#' + id)[0], { backdrop: 'static', keyboard: false });
+  modal.show();
+
+d('#' + id).on('shown.bs.modal', function () {
+
+    let ratedColors = ['#d21917', '#7f00ff', '#edda12', '#07aee5', '#007437'];
+  let ratingsNum = parseFloat(ratings) || 0;
+  let ratingsinitial = ratingsNum + 0.1;
+  let initialRating = ratingsinitial.toFixed(0);
+  let activeColor = initialRating - 1;
+  d("#rate_item"+id).starRating({
+    starSize: 22,
+    strokeWidth: 9,
+    strokeColor: '#636363',
+    hoverColor: '#0037ff',
+    activeColor: ratedColors[activeColor],
+    ratedColors: ratedColors,
+    useGradient: false,
+    initialRating: ratingsNum,
+    callback: function(currentRating, el) {
+      ratings_fnc('items', 'item', id, currentRating, token);
+    },
+    onHover: function(currentIndex, currentRating, el) {
+      d('#rate_live_item'+id).text(currentIndex);
+    },
+    onLeave: function(currentIndex, currentRating, el) {
+      d('#rate_live_item'+id).text(currentRating);
+    }
+  });
+
+  d('#do_like_item'+id).on('click', function() {    
+    likes_fnc('items', 'item', id, token);
+  });
 });
 
 }
+
 
 function is_valid_email(email) {
   const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -1506,7 +1613,7 @@ function subscribe_fnc(action) {
    overlay_fnc(form);
     let data = {do: action, token: d('#newsletter_token').val(), email: d('#newsletter_email').val(), name: d('#newsletter_name').val()};
    p.ajax({
-          url: base_url+'Ajax/execution', 
+          url: ccp.base_url+'Ajax/execution', 
           type: 'POST',
           headers: {'X-Requested-With': 'XMLHttpRequest'},
           data: data,
@@ -1523,7 +1630,7 @@ function subscribe_fnc(action) {
 
             } else{
 
-              d('#newsletter_alert').append('<div class="alert alert-danger alert-dismissible fade show my-3" role="alert"><b>Oops!</b> Something went wrong. Please refresh the page and try again. <p>If the problem continues, feel free to <a href="'+base_url+'Contact" class="link-primary">contact us</a> for assistance.</p></div>');
+              d('#newsletter_alert').append('<div class="alert alert-danger alert-dismissible fade show my-3" role="alert"><b>Oops!</b> Something went wrong. Please refresh the page and try again. <p>If the problem continues, feel free to <a href="'+ccp.base_url+'Contact" class="link-primary">contact us</a> for assistance.</p></div>');
               d(form).LoadingOverlay("hide");
 
             }
@@ -1532,7 +1639,7 @@ function subscribe_fnc(action) {
 
               dump_fnc(response);
 
-             d('#newsletter_alert').append('<div class="alert alert-danger alert-dismissible fade show my-3" role="alert">Uh-oh! We weren’t able to process your request. A quick refresh should fix it — then please try again. <p>If the problem continues, feel free to <a href="'+base_url+'Contact" class="link-primary">contact us</a> for assistance.</p></div>');
+             d('#newsletter_alert').append('<div class="alert alert-danger alert-dismissible fade show my-3" role="alert">Uh-oh! We weren’t able to process your request. A quick refresh should fix it — then please try again. <p>If the problem continues, feel free to <a href="'+ccp.base_url+'Contact" class="link-primary">contact us</a> for assistance.</p></div>');
              p(form).LoadingOverlay("hide");
 
             }          
@@ -1572,7 +1679,7 @@ function subscriber_fnc(token) {
 
 
     }else{
-        dialog_fnc('Valid email required', '<b>Oops! That doesn’t look like a valid email.</b> <br> Please double-check and try again. <p>If the problem continues, feel free to <a href="'+base_url+'Contact" class="link-primary">contact us</a> for assistance.</p>');
+        dialog_fnc('Valid email required', '<b>Oops! That doesn’t look like a valid email.</b> <br> Please double-check and try again. <p>If the problem continues, feel free to <a href="'+ccp.base_url+'Contact" class="link-primary">contact us</a> for assistance.</p>');
         return false;
     }
 }
@@ -1586,14 +1693,21 @@ function validate_search_fnc() {
     return true;
 }
 
-function add2cart_fnc(item_id, token = '', event = false){
+function add2cart_fnc(item_id, token = '', event = false, modal = false){
 
 
   if(item_id){
 
-  var id = 'item_' + item_id + '_';
+    let id;
+  if (modal) {
+    id = 'quick_view_item_' + item_id + '_';
+  } else {
+    id = 'item_' + item_id + '_';
+  }
+
   var form = document.getElementById(id + 'frm');
   var zone = document.getElementById(id + 'zone');
+    
   let data ='';
 
   d(zone).LoadingOverlay("show", {
@@ -1641,7 +1755,7 @@ form.classList.add('was-validated');
 
   }
 
-let url = base_url+"Ajax/add2cart";
+let url = ccp.base_url+"Ajax/add2cart";
     let options = {
               type: "POST",
               url: url,
