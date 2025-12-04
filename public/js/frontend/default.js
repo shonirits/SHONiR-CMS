@@ -1440,29 +1440,44 @@ function item_quick_view_fnc(details, item_image, item_url, token) {
   let spotlight = details.spotlight; 
   let ratings = details.ratings;
   let likes   = details.likes;
-  let price   = details.price;
-  let price_previous = details.price_previous;
+  let price   = parseFloat(details.price) || 0;
+  let price_previous = parseFloat(details.price_previous) || 0;
   let minimum = details.minimum;
   let stock   = details.stock;
 
-  let badgesHtml = '';
+// normalize config flags to boolean
+const badgeSale     = String(ccp.badge_sale).toUpperCase() === 'TRUE';
+const badgeNewbie   = String(ccp.badge_newbie).toUpperCase() === 'TRUE';
+const badgeFeatured = String(ccp.badge_featured).toUpperCase() === 'TRUE';
+const badgeHd       = String(ccp.badge_hd).toUpperCase() === 'TRUE';
+const badgeLq       = String(ccp.badge_lq).toUpperCase() === 'TRUE';
+const badgeSt       = String(ccp.badge_st).toUpperCase() === 'TRUE';
 
-if (ccp.badge_sale === 'TRUE' && price < price_previous) {
+// normalize item flags to boolean
+const isNewbie   = details.newbie === 1 || details.newbie === '1' || details.newbie === true;
+const isFeatured = details.featured === 1 || details.featured === '1' || details.featured === true;
+const isHd       = details.hd === 1 || details.hd === '1' || details.hd === true;
+const isLq       = details.lq === 1 || details.lq === '1' || details.lq === true;
+const isSt       = details.st === 1 || details.st === '1' || details.st === true;
+
+let badgesHtml = '';
+
+if (badgeSale && price < price_previous) {
   badgesHtml += `<span class="badge sale">Sale</span>`;
 }
-if (ccp.badge_newbie === 'TRUE' && details.newbie) {
+if (badgeNewbie && isNewbie) {
   badgesHtml += `<span class="badge newbie">New</span>`;
 }
-if (ccp.badge_featured === 'TRUE' && details.featured) {
+if (badgeFeatured && isFeatured) {
   badgesHtml += `<span class="badge featured">Featured</span>`;
 }
-if (ccp.badge_hd === 'TRUE' && details.hd) {
+if (badgeHd && isHd) {
   badgesHtml += `<span class="badge hd">HD</span>`;
 }
-if (ccp.badge_lq === 'TRUE' && details.lq) {
+if (badgeLq && isLq) {
   badgesHtml += `<span class="badge lq">LQ</span>`;
 }
-if (ccp.badge_st === 'TRUE' && details.st) {
+if (badgeSt && isSt) {
   badgesHtml += `<span class="badge st">ST</span>`;
 }
 
@@ -1470,7 +1485,7 @@ if (ccp.badge_st === 'TRUE' && details.st) {
   d('#' + id).remove(); 
 
   let ratingsHtml = '';
-  if (ccp.ratings === 'TRUE') {
+  if (String(ccp.ratings).toUpperCase() === 'TRUE') {
     ratingsHtml = `
       <div class="ratings">
         Rating: <span id="rate_item${id}" class="star-ratings"></span>
@@ -1479,7 +1494,7 @@ if (ccp.badge_st === 'TRUE' && details.st) {
   }
 
   let likesHtml = '';
-  if (ccp.likes === 'TRUE') {
+  if (String(ccp.likes).toUpperCase() === 'TRUE') {
     let likeIcon = details.liked === 'true'
       ? '<i class="fa-solid fa-thumbs-up"></i>'
       : '<i class="fa-regular fa-thumbs-up"></i>';
@@ -1492,14 +1507,17 @@ if (ccp.badge_st === 'TRUE' && details.st) {
   }
 
   let priceHtml = '';
-  if (ccp.price === 'TRUE') {
-    let currentPrice = parseFloat(price).toFixed(2);
-    let prevPrice = parseFloat(price_previous).toFixed(2);
-    priceHtml = `
-      <div class="price">
-        Price: US $ ${currentPrice} - ${price_previous > price ? prevPrice : currentPrice}
-      </div>`;
-  }
+if (String(ccp.price).toUpperCase() === 'TRUE') {
+
+  // format for display
+  const currentPrice = price.toFixed(2);
+  const prevPrice = price_previous.toFixed(2);
+
+  priceHtml = `
+    <div class="price">
+      Price: US $ ${currentPrice} - ${price_previous > price ? prevPrice : currentPrice}
+    </div>`;
+}
 
   let categoriesHtml = '';
   if (details.categories && details.categories.length) {
