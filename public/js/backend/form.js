@@ -11,6 +11,7 @@ if (isPluginsReady || isTimeout) {
   const ajax_selectors = [
   '#items',
   '#categories',
+  '#blogs_categories',
   '#sections',
   '#awards',
   '#natives',
