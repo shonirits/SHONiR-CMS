@@ -23,6 +23,8 @@ function are_core_plugins_ready_fnc() {
          typeof mojs === "object" &&
          typeof bootstrap !== "undefined" &&
          typeof jQuery.ui !== "undefined" &&
+         typeof Fancybox !== "undefined" &&
+         typeof Carousel !== "undefined" &&
          typeof jQuery.fn.slick === "function";
 }
 
@@ -54,158 +56,146 @@ function scroll_Fnc(SHONiR_ID){
   });
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+d(document).ready(function () {
+  const CLOSE_DELAY = 1000; // 5 seconds delay on mouseleave (desktop)
+  const OPEN_DELAY = 100;   // slight delay to prevent flicker
+
   scroll_top_fnc();
-  document.querySelectorAll('.dropdown-menu .dropdown-item, .navbar .nav-link').forEach(link => {
-  const nextEl = link.nextElementSibling;
-  if (nextEl && nextEl.classList.contains('dropdown-menu')) {
-    link.classList.add('has-submenu');
-  }
-});
 
-document.addEventListener('click', function (e) {
-  if (!e.target.closest('.navbar')) {
-    document.querySelectorAll('.navbar .dropdown .show').forEach(el => {
-      bootstrap.Dropdown.getOrCreateInstance(el).hide();
-    });
-    document.querySelectorAll('.submenu').forEach(sub => sub.classList.remove('submenu-show'));
-    document.querySelectorAll('.submenu-open').forEach(item => item.classList.remove('submenu-open'));
-  }
-});
+  // Mark links with submenus
+  d('.dropdown-menu .dropdown-item, .navbar .nav-link').each(function () {
+    const nextEl = d(this).next();
+    if (nextEl.length && nextEl.hasClass('dropdown-menu')) {
+      d(this).addClass('has-submenu');
+    }
+  });
 
+  // Close menus when clicking outside
+  d(document).on('click', function (e) {
+    if (!d(e.target).closest('.navbar').length) {
+      d('.navbar .dropdown .show').each(function () {
+        bootstrap.Dropdown.getOrCreateInstance(this).hide();
+      });
+      d('.submenu').removeClass('submenu-show');
+      d('.submenu-open').removeClass('submenu-open');
+    }
+  });
 
-const try_int_fnc = () => {
-    const ready = are_core_plugins_ready_fnc();
-    if (!ready) {
+  const try_int_fnc = function () {
+    if (!are_core_plugins_ready_fnc()) {
       setTimeout(try_int_fnc, 100);
       return;
     }
 
-  if (isDesktop) {
-    document.addEventListener('click', function (e) {
-      if (!e.target.closest('.navbar')) {
-        document.querySelectorAll('.navbar .dropdown .show').forEach(el => {
-          bootstrap.Dropdown.getOrCreateInstance(el).hide();
-        });
-        document.querySelectorAll('.submenu').forEach(sub => sub.classList.remove('submenu-show'));
-        document.querySelectorAll('.submenu-open').forEach(item => item.classList.remove('submenu-open'));
-      }
-    });
+    // ===========================
+    // DESKTOP BEHAVIOR
+    // ===========================
+    if (isDesktop) {
+      d('.navbar .dropdown').each(function () {
+        const dropdown = d(this);
+        let dropdownTimer;
 
-    document.querySelectorAll('.navbar .dropdown').forEach(dropdown => {
-      let dropdownTimer;
+        dropdown.on('mouseenter', function () {
+          clearTimeout(dropdownTimer);
 
-      dropdown.addEventListener('mouseenter', () => {
-        clearTimeout(dropdownTimer);
+          // Close other dropdowns immediately
+          d('.navbar .dropdown').each(function () {
+            const toggle = d(this).find('[data-bs-toggle="dropdown"]');
+            if (toggle.hasClass('show')) {
+              bootstrap.Dropdown.getOrCreateInstance(toggle[0]).hide();
+            }
+          });
 
-        document.querySelectorAll('.navbar .dropdown').forEach(drop => {
-          const toggle = drop.querySelector('[data-bs-toggle="dropdown"]');
-          if (toggle && toggle.classList.contains('show')) {
-            bootstrap.Dropdown.getOrCreateInstance(toggle).hide();
+          const toggle = dropdown.find('[data-bs-toggle="dropdown"]');
+          if (!toggle.hasClass('show')) {
+            setTimeout(() => {
+              bootstrap.Dropdown.getOrCreateInstance(toggle[0]).show();
+            }, OPEN_DELAY);
           }
         });
 
-        const toggle = dropdown.querySelector('[data-bs-toggle="dropdown"]');
-        if (toggle && !toggle.classList.contains('show')) {
-          bootstrap.Dropdown.getOrCreateInstance(toggle).show();
-        }
-      });
+        dropdown.on('mouseleave', function () {
+          clearTimeout(dropdownTimer);
+          dropdownTimer = setTimeout(function () {
+            const toggle = dropdown.find('[data-bs-toggle="dropdown"]');
+            if (toggle.hasClass('show')) {
+              bootstrap.Dropdown.getOrCreateInstance(toggle[0]).hide();
+            }
+          }, CLOSE_DELAY);
+        });
 
-      dropdown.addEventListener('mouseleave', () => {
-        dropdownTimer = setTimeout(() => {
-          const toggle = dropdown.querySelector('[data-bs-toggle="dropdown"]');
-          if (toggle && toggle.classList.contains('show')) {
-            bootstrap.Dropdown.getOrCreateInstance(toggle).hide();
+        // Handle nested submenus
+        dropdown.find('li').each(function () {
+          const item = d(this);
+          const submenu = item.children('.submenu');
+          let submenuTimer;
+
+          if (submenu.length) {
+            item.on('mouseenter', function () {
+              clearTimeout(submenuTimer);
+              item.siblings().removeClass('submenu-open').children('.submenu').removeClass('submenu-show');
+              submenu.addClass('submenu-show');
+              item.addClass('submenu-open');
+
+              // Flip if overflowing viewport
+              const rect = submenu[0].getBoundingClientRect();
+              if (rect.right > window.innerWidth) {
+                submenu.addClass('flip-left');
+              } else {
+                submenu.removeClass('flip-left');
+              }
+            });
+
+            item.on('mouseleave', function () {
+              clearTimeout(submenuTimer);
+              submenuTimer = setTimeout(function () {
+                submenu.removeClass('submenu-show');
+                item.removeClass('submenu-open');
+              }, CLOSE_DELAY);
+            });
           }
-        }, 500); 
-      });
-
-      dropdown.querySelectorAll('li').forEach(item => {
-  const submenu = item.querySelector('.submenu');
-  let submenuTimer;
-
-  if (submenu) {
-    item.addEventListener('mouseenter', () => {
-      clearTimeout(submenuTimer);
-
-      item.parentElement.querySelectorAll('.submenu').forEach(sub => sub.classList.remove('submenu-show'));
-      item.parentElement.querySelectorAll('.submenu-open').forEach(openItem => openItem.classList.remove('submenu-open'));
-
-      submenu.classList.add('submenu-show');
-      item.classList.add('submenu-open');
-    });
-
-    item.addEventListener('mouseleave', () => {
-      submenuTimer = setTimeout(() => {
-        submenu.classList.remove('submenu-show');
-        item.classList.remove('submenu-open');
-      }, 500);
-    });
-
-    submenu.querySelectorAll('li').forEach(subItem => {
-      const childSub = subItem.querySelector('.submenu');
-      if (childSub) {
-        let childTimer;
-
-        subItem.addEventListener('mouseenter', () => {
-          clearTimeout(childTimer);
-          childSub.classList.add('submenu-show');
-          subItem.classList.add('submenu-open');
         });
-
-        subItem.addEventListener('mouseleave', () => {
-          childTimer = setTimeout(() => {
-            childSub.classList.remove('submenu-show');
-            subItem.classList.remove('submenu-open');
-          }, 500);
-        });
-      }
-    });
-  }
-});
-
-    });
-  }
-
-  if (isMobile) {
-    document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(link => {
-      const nextEl = link.nextElementSibling;
-      if (nextEl && nextEl.classList.contains('dropdown-menu')) {
-        link.classList.add('has-submenu');
-      }
-    });
-    document.querySelectorAll('.navbar .dropdown').forEach(dropdown => {
-      dropdown.addEventListener('show.bs.dropdown', () => {
-        const trigger = dropdown.querySelector('.nav-link.has-submenu');
-        if (trigger) trigger.parentElement.classList.add('submenu-open-parent');
       });
-      dropdown.addEventListener('hide.bs.dropdown', () => {
-        const trigger = dropdown.querySelector('.nav-link.has-submenu');
-        if (trigger) trigger.parentElement.classList.remove('submenu-open-parent');
-      });
-    });
-    document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(link => {
-      link.addEventListener('click', function (e) {
-        const nextEl = this.nextElementSibling;
-        if (nextEl && nextEl.classList.contains('dropdown-menu')) {
+    }
+
+    // ===========================
+    // MOBILE BEHAVIOR
+    // ===========================
+    if (isMobile) {
+      // Prevent Bootstrap auto-close conflict
+      d('.dropdown-item.has-submenu').off('click').on('click', function (e) {
+        const nextEl = d(this).next('.dropdown-menu');
+        if (nextEl.length) {
           e.preventDefault();
           e.stopPropagation();
-          const parentMenu = this.closest('.dropdown-menu');
-          parentMenu.querySelectorAll('.submenu-open').forEach(sub => {
-            if (sub !== nextEl) sub.classList.remove('submenu-open');
-          });
-          parentMenu.querySelectorAll('.submenu-open-parent').forEach(subParent => {
-            if (subParent !== this.parentElement) subParent.classList.remove('submenu-open-parent');
-          });
-          nextEl.classList.toggle('submenu-open');
-          this.parentElement.classList.toggle('submenu-open-parent');
+
+          // Only toggle submenu, not Bootstrap dropdown
+          const parentMenu = d(this).closest('.dropdown-menu');
+          parentMenu.find('.submenu-open').not(nextEl).removeClass('submenu-open');
+          parentMenu.find('.submenu-open-parent').not(d(this).parent()).removeClass('submenu-open-parent');
+
+          nextEl.toggleClass('submenu-open');
+          d(this).parent().toggleClass('submenu-open-parent');
         }
       });
-    });
-  }
-};
+
+      // Keep Bootstrap dropdown open until explicitly closed
+      d('.navbar .dropdown').on('show.bs.dropdown', function () {
+        d(this).addClass('submenu-open-parent');
+      }).on('hide.bs.dropdown', function (e) {
+        // Prevent auto-close when clicking inside submenu
+        if (d(e.target).closest('.submenu-open').length) {
+          e.preventDefault();
+        } else {
+          d(this).removeClass('submenu-open-parent');
+        }
+      });
+    }
+  };
+
   try_int_fnc(token);
 });
+
 
   function SHONiR() {}
 
@@ -267,7 +257,7 @@ const try_int_fnc = () => {
                 
 
               quick_cart_content += `
-                      <div class="cart-item row align-items-center border-bottom py-2">
+                      <div class="cart-item row align-items-center border-bottom p-1 m-1">
                         <div class="col-2 col-md-3 text-center">
                           <img src="${uploads.url}" alt="${itemDetails.name}" class="img-fluid rounded shadow-sm card-image">
                         </div>
@@ -275,13 +265,13 @@ const try_int_fnc = () => {
                           <div class="card border-0">
                             <div class="card-body p-2">
                               <h6 class="card-title mb-1"><a href="${itemDetails.url}" class="text-decoration-none">${itemDetails.name}</a></h6>
-                              <p class="card-text mb-1"><span class="fw-bold">Model:</span> ${itemDetails.model}</p>`;
+                              <p class="card-text text-muted small mb-1"><span class="fw-bold">Model:</span> <span class="fw-bold">${itemDetails.model}</span></p>`;
                               
                               if (hasPrice) {
-                                quick_cart_content += `<p class="card-text mb-1">
+                                quick_cart_content += `<p class="card-text small mb-1">
                                   <span class="fw-bold">Price:</span> 
-                                  ${itemDetails.price < itemDetails.price_previous ? `<span class="text-muted text-decoration-line-through me-1">${itemDetails.price_previous}</span>` : ""}
-                                  <span>${itemDetails.price}</span>
+                                  ${itemDetails.price < itemDetails.price_previous ? `<span class="text-decoration-line-through text-danger me-1">${itemDetails.price_previous}</span>` : ""}
+                                  <span class="text-success">${itemDetails.price}</span>
                                 </p>`;
                               }
 
@@ -303,7 +293,7 @@ const try_int_fnc = () => {
   });
 
                 quick_cart_content += `
-        <div class="cart-summary border-top pt-3">
+        <div class="cart-summary p-2 m-2">
             <h5>Inquiry Summary</h5>
             <p><span class="title">Total Items:</span> ${total_cart_items}</p>
             <p><span class="title">Total Quantity:</span> ${total_quantity}</p>`;
@@ -311,7 +301,7 @@ const try_int_fnc = () => {
             if (hasPrice) {
             quick_cart_content += `<p><span class="title">Subtotal:</span> <span class="subtotal">${total_price.toFixed(2)}</span></p>`;
             }
-        quick_cart_content += `<div class="d-flex gap-3 mt-3">
+        quick_cart_content += `<div class="d-flex gap-3 pt-3 mt-3">
             <a href="${ccp.base_url}Cart" class="btn btn-outline-primary w-50">View Cart</a>
             <a href="${ccp.base_url}Checkout" class="btn btn-success w-50">Send Enquiry</a>
         </div>
@@ -320,8 +310,8 @@ const try_int_fnc = () => {
                 
                 }
 
-                d('#quick-cart-content').html(quick_cart_content); 
-                d('#total-cart-items').css({ opacity: 0, transform: "scale(0.8)" }).html(total_cart_items).animate({ opacity: 1, transform: "scale(1)" }, 500);
+                d('.quick-cart-content').html(quick_cart_content); 
+                d('.total-cart-items').css({ opacity: 0, transform: "scale(0.8)" }).html(total_cart_items).animate({ opacity: 1, transform: "scale(1)" }, 500);
 
 
             if (response.data && response.data.alert && response.data.alert.message && response.data.alert.type) {
@@ -346,97 +336,93 @@ const try_int_fnc = () => {
     
   }
 
-  function search_fnc(query = '', token = ''){
+  function search_fnc(query = '', token = '') {
+  const query_trim = query.trim();
 
-    let query_trim = query.trim();
+  if (query_trim.length >= 3) {
+    const $input = d('#query-fld:focus'); // use the currently focused input
 
-    if (query_trim.length >= 3) {
+    if ($input.length && $input.data('uiAutocomplete')) {
+      $input.autocomplete('destroy');
+    }
 
-      if (d('#query-fld').data('uiAutocomplete')) {
-        d('#query-fld').autocomplete('destroy');
-      }
+    d.ajax({
+      type: "POST",
+      url: ccp.base_url + "Ajax/search",
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      data: { query: query_trim, token: token },
+      dataType: "json",
+      success: function (response) {
+        if (response.status === 'TRUE' && Array.isArray(response.data) && response.data.length > 0) {
+          $input.autocomplete({
+            source: response.data.map(item => {
+              let uploads = {};
+              try { uploads = JSON.parse(item.uploads); } catch (e) {}
+              return {
+                label: item.name,
+                value: item.name,
+                model: item.model,
+                price: item.price ?? null,
+                price_previous: item.price_previous ?? null,
+                img: uploads.url,
+                url: item.url
+              };
+            }),
+            minLength: 0,
+            appendTo: "body",
+            position: { my: "left top", at: "left bottom", of: $input }, // align with the focused input
+            select: function (event, ui) {
+              redirect_fnc(ui.item.url);
+              wait_fnc(
+                'Navigating to Your Destination...',
+                `<p>Please hold on while we take you to your page. <br/>If the redirection doesn’t happen in 5 seconds, kindly <b><a href="${ui.item.url}">Click Here</a></b> to proceed manually.</p>`
+              );
+            }
+          });
 
-    let url = ccp.base_url+"Ajax/search";
-    let data = {query: query_trim, token: token};
-    let options = {
-              type: "POST",
-              url: url,
-              headers: {'X-Requested-With': 'XMLHttpRequest'},
-              data: data,
-              dataType: "json",
-              success: function(response, status, xhr){   
-                if(response['status'] === 'TRUE'){                   
+          setTimeout(() => {
+            if ($input.data("uiAutocomplete")) {
+              $input.autocomplete("search", "");
+            }
+          }, 200);
 
-                  if(response.data && response.data.length > 0){                    
+          $input.data("uiAutocomplete")._renderItem = function (ul, item) {
+            const price = parseFloat(item.price);
+            const pricePrevious = parseFloat(item.price_previous);
+            const hasPrice = !isNaN(price);
+            const hasPrevious = !isNaN(pricePrevious);
 
-                    d("#query-fld").autocomplete({
-                  source: response.data.map(item => {
-                      let uploads = JSON.parse(item.uploads);
-                      return {
-                          label: item.name,
-                          value: item.name,
-                          model: item.model,
-                          price: typeof item.price !== 'undefined' ? item.price : null,
-                          price_previous: typeof item.price !== 'undefined' ? item.price_previous : null,
-                          img: uploads.url,
-                          url: item.url
-                      };
-                  }),
-                  minLength: 0,
-                  select: function(event, ui) {
-                     redirect_fnc(ui.item.url);
-                     wait_fnc('Navigating to Your Destination...', `<p>Please hold on while we take you to your page. <br/>If the redirection doesn’t happen in 5 seconds, kindly <b><a href="${ui.item.url}">Click Here</a></b> to proceed manually.</p>`);
-                  }
-              });
-
-                    setTimeout(() => {
-                    const $input = d("#query-fld");
-                    if ($input.data("uiAutocomplete")) {
-                      $input.autocomplete("search", "");
-                    }
-                  }, 200);
-
-                                d("#query-fld").data("uiAutocomplete")._renderItem = function(ul, item) {
-                  const price = parseFloat(item.price);
-                  const pricePrevious = parseFloat(item.price_previous);
-                  const hasPrice = !isNaN(price);
-                  const hasPrevious = !isNaN(pricePrevious);
-
-                  return d("<li class='autocomplete-item list-group-item border-0 px-0'>")
-                    .append(`
-                      <div class="card shadow-sm border-0 rounded-3">
-                        <div class="row g-2 align-items-center">
-                          <div class="col-3 col-sm-2 text-center">
-                            <img src="${item.img}" alt="${item.label}" class="img-fluid rounded card-image">
-                          </div>
-                          <div class="col-9 col-sm-10">
-                            <div class="card-body py-2 px-3">
-                              <h6 class="card-title mb-1">
-                                <a href="${item.url || '#'}" class="text-decoration-none text-primary fw-semibold hover-link">${item.label}</a>
-                              </h6>
-                              <p class="card-text text-muted small mb-1">${item.model || ''}</p>
-                              ${hasPrice ? `
-                                <p class="card-text text-muted small mb-0">
-                                  ${hasPrevious && pricePrevious > price ? 
-                                    `<span class="text-decoration-line-through text-danger">$${pricePrevious.toFixed(2)}</span>` : ""}
-                                  <strong class="text-success ms-2">$${price.toFixed(2)}</strong>
-                                </p>` : ""}
-                            </div>
-                          </div>
-                        </div>
+            return d("<li class='autocomplete-item list-group-item border-0 px-0'>")
+              .append(`
+                <div class="card shadow-sm border-0 rounded-3">
+                  <div class="row g-2 align-items-center">
+                    <div class="col-3 col-sm-2 text-center">
+                      <img src="${item.img}" alt="${item.label}" class="img-fluid rounded card-image">
+                    </div>
+                    <div class="col-9 col-sm-10">
+                      <div class="card-body py-2 px-3">
+                        <h6 class="card-title mb-1">
+                          <a href="${item.url || '#'}" class="text-decoration-none text-primary fw-semibold hover-link">${item.label}</a>
+                        </h6>
+                        <p class="card-text text-muted small mb-1">${item.model || ''}</p>
+                        ${hasPrice ? `
+                          <p class="card-text text-muted small mb-0">
+                            ${hasPrevious && pricePrevious > price ? 
+                              `<span class="text-decoration-line-through text-danger">$${pricePrevious.toFixed(2)}</span>` : ""}
+                            <strong class="text-success ms-2">$${price.toFixed(2)}</strong>
+                          </p>` : ""}
                       </div>
-                    `).appendTo(ul);
-                };
-
-                  }
-
-                }
-              }       
-            };
-
-        d.ajax(options);
-       }
+                    </div>
+                  </div>
+                </div>
+              `).appendTo(ul);
+          };
+        }
+      }
+    });
   }
+}
+
 
   function get_timezone_offset_fnc() {
   const pad = n => String(Math.floor(n)).padStart(2, '0');
@@ -1137,8 +1123,10 @@ function load_assets_fnc() {
   load_assets_locked = true;
 
   const cssList = [
-  `https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css`,
   `https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css`,
+  `https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css`,
+  `https://cdn.jsdelivr.net/npm/wowjs@1.1.3/css/libs/animate.min.css`,
+  `https://cdn.jsdelivr.net/npm/hover.css@2.3.2/css/hover.min.css`,
   `https://cdn.jsdelivr.net/npm/noty@3.2.0-beta-deprecated/lib/noty.min.css`,
   `https://cdn.jsdelivr.net/npm/noty@3.2.0-beta-deprecated/lib/themes/metroui.css`,
   `https://cdn.jsdelivr.net/npm/bootstrap-cookie-alert@1.2.2/cookiealert.min.css`,
@@ -1147,6 +1135,11 @@ function load_assets_fnc() {
   `https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.css`,
   `https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css`,
   `https://cdn.jsdelivr.net/npm/star-rating-svg@3.5.0/src/css/star-rating-svg.min.css`,
+  `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.css`,
+  `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/carousel/carousel.css`,
+  `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/carousel/carousel.lazyload.css`,
+  `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/carousel/carousel.arrows.css`,
+  `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/carousel/carousel.thumbs.css`,
   `https://cdn.jsdelivr.net/gh/shonirits/SHONiR-CMS@master/public/css/frontend/default.min.css`,
   `${ccp.css_url}public/css/frontend/${ccp.frontend_theme}/theme.css`,
 ];
@@ -1482,8 +1475,6 @@ if (badgeSt && isSt) {
 }
 
 
-  d('#' + id).remove(); 
-
   let ratingsHtml = '';
   if (String(ccp.ratings).toUpperCase() === 'TRUE') {
     ratingsHtml = `
@@ -1514,9 +1505,12 @@ if (String(ccp.price).toUpperCase() === 'TRUE') {
   const prevPrice = price_previous.toFixed(2);
 
   priceHtml = `
-    <div class="price">
-      Price: US $ ${currentPrice} - ${price_previous > price ? prevPrice : currentPrice}
-    </div>`;
+   <div class="price-box my-4">
+                            <span class="price-label">Estimated Price:</span>
+                            <h2 class="price-value">US $ ${currentPrice} - ${price_previous > price ? prevPrice : currentPrice}
+    </h2>
+                            <p class="small text-muted mb-0 price-hint">*Prices vary based on customization & quantity.</p>
+                        </div>`;
 }
 
   let categoriesHtml = '';
@@ -1530,18 +1524,14 @@ if (String(ccp.price).toUpperCase() === 'TRUE') {
       </div>`;
   }
 
-  let modalHtml = `
-  <div class="modal item-modal fade t-items_details" id="${id}" tabindex="-1" aria-labelledby="${id}Title" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <button type="button" class="btn-close close" data-bs-dismiss="modal" aria-label="Close"></button>
-        <div class="modal-body" id="quick_view_item_${id}_zone">
+  let modalHtml = `<div class="t-items_details" id="quick_view_item_${id}_zone">
           <div class="row">
             <div class="col-md-7">
               <div class="modal-image item_badges">
+              <a href="${item_url}">
               ${badgesHtml}
                 <img class="img-fluid rounded" src="${item_image}" alt="${title}">
-                
+                </a>
               </div>
             </div>
             <div class="col-md-5">
@@ -1566,33 +1556,29 @@ if (String(ccp.price).toUpperCase() === 'TRUE') {
                     </div>
                   </div>
                   ${categoriesHtml}
-                  <button type="button" class="btn btn-main"
-                    onclick="javascript:add2cart_fnc('${id}', '${token}', event, true);"
-                    data-toggle="tooltip" data-placement="top" title="Get Free Quote">
-                    Get Free Quote
+                  <div class="action mt-4">
+                  <button type="button" class="btn btn-primary hvr-radial-out"
+                    onclick="add2cart_fnc('${id}', '${token}', event, true);"
+                    data-bs-toggle="tooltip"  title="Get Free Quote">
+                    <i class="fa-solid fa-basket-shopping"></i> Get Free Quote
                   </button>
-                  <a href="${item_url}" class="btn btn-transparent">View Product Details</a>
+                  <a href="${item_url}" class="link-secondary" data-bs-toggle="tooltip"  title="More Information">More Information</a>
+                  </div>
                 </div>
               </form>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>`;
-  
-  d('body').append(modalHtml);
-  let modal = new bootstrap.Modal(d('#' + id)[0], { backdrop: 'static', keyboard: false });
-  modal.show();
+        </div>`;
+
+ modal_fnc(id, 'QUICK VIEW', modalHtml);
 
 d('#' + id).on('shown.bs.modal', function () {
+  const ratedColors = ['#d21917', '#7f00ff', '#edda12', '#07aee5', '#007437'];
+  const ratingsNum = parseFloat(ratings) || 0;
+  const initialRating = Math.round(ratingsNum);
+  const activeColor = Math.max(0, initialRating - 1);
 
-    let ratedColors = ['#d21917', '#7f00ff', '#edda12', '#07aee5', '#007437'];
-  let ratingsNum = parseFloat(ratings) || 0;
-  let ratingsinitial = ratingsNum + 0.1;
-  let initialRating = ratingsinitial.toFixed(0);
-  let activeColor = initialRating - 1;
-  d("#rate_item"+id).starRating({
+  d("#rate_item" + id).starRating({
     starSize: 22,
     strokeWidth: 9,
     strokeColor: '#636363',
@@ -1601,21 +1587,191 @@ d('#' + id).on('shown.bs.modal', function () {
     ratedColors: ratedColors,
     useGradient: false,
     initialRating: ratingsNum,
-    callback: function(currentRating, el) {
+    callback: function (currentRating) {
       ratings_fnc('items', 'item', id, currentRating, token);
     },
-    onHover: function(currentIndex, currentRating, el) {
-      d('#rate_live_item'+id).text(currentIndex);
+    onHover: function (currentIndex) {
+      d('#rate_live_item' + id).text(currentIndex);
     },
-    onLeave: function(currentIndex, currentRating, el) {
-      d('#rate_live_item'+id).text(currentRating);
+    onLeave: function (currentIndex, currentRating) {
+      d('#rate_live_item' + id).text(currentRating);
     }
   });
 
-  d('#do_like_item'+id).on('click', function() {    
+  d('#do_like_item' + id).off('click').on('click', function () {
     likes_fnc('items', 'item', id, token);
   });
 });
+
+
+}
+
+function item_quick_send_fnc(details, item_image, item_url, token) {
+  let id = details.item_id;
+let title = details.title;
+let spotlight = details.spotlight || '';
+
+let content = `
+<div class="item_quick_send_modal" id="item_quick_send_modal_${id}">
+  <div class="quick_send_item_${id}_frm contact_frm container">
+    <div class="row mb-1">
+      <div class="col-12 text-center">
+        <h2>${title}</h2>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Left side -->
+      <div class="col-lg-6 col-md-12 p-3 mb-3 order-2 order-lg-1 text-center">
+        <a href="${item_url}"><img class="img-fluid rounded shadow enquire-img" src="${item_image}" alt="${title}"></a>
+        <div class="spotlight my-5">${spotlight}</div>
+      </div>
+
+      <!-- Right side -->
+      <div class="col-lg-6 col-md-12 p-1 order-1 order-lg-2" id="quick_send_item_${id}_zone">
+        <form id="quick_send_item_${id}_frm" class="needs-validation" novalidate>
+          <input type="hidden" name="captcha_token" id="captcha_token_${id}" value="${token}">
+          <input type="hidden" name="item_id" id="item_id_${id}" value="${id}">
+
+          <div class="mb-1">
+            <label for="name_${id}" class="form-label"><i class="fa-solid fa-user"></i> Your Name</label>
+            <input type="text" class="form-control" id="name_${id}" name="name" placeholder="Enter your name" required>
+            <div class="invalid-feedback">Name is required.</div>
+          </div>
+
+          <div class="mb-1">
+            <label for="email_${id}" class="form-label"><i class="fa-solid fa-envelope"></i> Email</label>
+            <input type="email" class="form-control" id="email_${id}" name="email" placeholder="Enter your email" required>
+            <div class="invalid-feedback">Valid email is required.</div>
+          </div>
+
+          <div class="mb-1">
+            <label for="phone_${id}" class="form-label"><i class="fa-brands fa-whatsapp"></i> WhatsApp</label>
+            <input type="text" class="form-control" id="phone_${id}" name="phone" placeholder="+92xxxxxxxxxx" required>
+            <div class="invalid-feedback">WhatsApp number is required.</div>
+          </div>
+
+          <div class="mb-1">
+            <label for="country_${id}" class="form-label"><i class="fa-solid fa-flag"></i> Country</label>
+            <input type="text" class="form-control" id="country_${id}" name="country" placeholder="What's the country?" required>
+            <div class="invalid-feedback">Country is required.</div>
+          </div>
+
+          <div class="mb-1">
+            <label for="quantity_${id}" class="form-label"><i class="fas fa-sort-amount-up"></i> Quantity</label>
+            <input type="text" class="form-control" id="quantity_${id}" name="quantity" placeholder="What's the quantity?" required>
+            <div class="invalid-feedback">Quantity is required.</div>
+          </div>
+
+          <div class="mb-1">
+            <label for="message_${id}" class="form-label"><i class="fa-solid fa-pencil"></i> Message</label>
+            <textarea class="form-control" id="message_${id}" name="message" rows="4" placeholder="Type your message here" required></textarea>
+            <div class="invalid-feedback">Message is required.</div>
+          </div>
+
+          <div class="row mb-1">
+            <div class="col-12 col-md-6 d-flex flex-column justify-content-center">
+              <label for="captcha_${id}" class="form-label"><i class="fa-solid fa-shield-halved"></i> CAPTCHA Code</label>
+              <img id="captcha_image_${id}" src="${ccp.base_url}Tools/captcha_image/${token}" alt="CAPTCHA" class="rounded shadow-sm mb-1 captcha_image">
+            </div>
+            <div class="col-12 col-md-6 d-flex align-items-center">
+              <input type="text" class="form-control" id="captcha_code_${id}" name="captcha_code" placeholder="Enter CAPTCHA" required>
+              <div class="invalid-feedback">Please enter the CAPTCHA code.</div>
+            </div>
+          </div>
+
+          <div class="d-grid pt-3">
+            <button type="submit" class="btn btn-primary hvr-radial-out">
+              <i class="fa-solid fa-paper-plane"></i> Send Request
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+modal_fnc(id, 'REQUEST A QUOTE', content);
+
+d.ajax({
+    url: `${ccp.base_url}Ajax/captcha_token`,
+    type: 'POST',
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    dataType: 'json',
+    success: function(response) {
+      if (response.status === 'TRUE' && response.data.captcha_token) {
+        let newToken = response.data.captcha_token;
+        d(`#captcha_token_${id}`).val(newToken);
+        d(`#captcha_image_${id}`).attr('src', `${ccp.base_url}Tools/captcha_image/${newToken}`);
+      }
+    },
+    error: function() {
+      console.error('Failed to load captcha token');
+    }
+  });
+
+  var form = document.getElementById(`quick_send_item_${id}_frm`);
+    form.addEventListener('submit', function (event) {
+      if (form.checkValidity() === false) {
+        event.preventDefault();
+        event.stopPropagation();
+      } else {
+        event.preventDefault();
+        overlay_fnc(form);
+        p(form).find(':button').prop('disabled', true);
+        var formData = p(form).serialize();
+        p.ajax({
+          url: `${ccp.base_url}Ajax/quote`, 
+          type: 'POST',
+          headers: {'X-Requested-With': 'XMLHttpRequest'},
+          data: formData,
+          dataType: 'json',
+          success: function (response, status, xhr) {
+            if(response.status && response.data){
+            if(response.status === 'TRUE'){              
+            d(`#quick_send_item_${id}_zone`).html('<div class="alert alert-success my-3" role="alert">'+response.data.alert+'</div>');
+            } else if(response.status === 'FALSE'){
+
+              p(`#captcha_token_${id}`).val(response.data.captcha_token);
+              p(`#captcha_code_${id}`).val('');
+
+              p(`#captcha_image_${id}`).attr('src', `${ccp.base_url}Tools/captcha_image/${response.data.captcha_token}`);
+              
+            d(`#quick_send_item_${id}_zone`).append('<div class="alert alert-danger alert-dismissible fade show my-3" role="alert">'+response.data.alert+'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></div>');
+              form.classList.remove('was-validated');
+            p(form).find(':button').prop('disabled', false);
+            p(form).LoadingOverlay("hide");
+             event.stopPropagation();
+
+            } else{
+
+              d(`#quick_send_item_${id}_zone`).append('<div class="alert alert-danger alert-dismissible fade show my-3" role="alert"><b>Oops!</b> Something went wrong. Please refresh the page and try submitting your message again. </div>');
+              form.classList.remove('was-validated');
+             event.stopPropagation();
+              p(form).LoadingOverlay("hide");
+
+            }
+
+            }else{
+
+              dump_fnc(response);
+
+             d(`#quick_send_item_${id}_zone`).append('<div class="alert alert-danger alert-dismissible fade show my-3" role="alert">Uh-oh! We weren’t able to process your message. A quick refresh should fix it — then please try again.</div>');
+              form.classList.remove('was-validated');
+             event.stopPropagation();
+             p(form).LoadingOverlay("hide");
+
+            }          
+          }
+          
+        });
+      }
+      form.classList.add('was-validated');
+    }, false);
+
+
+
 
 }
 
@@ -1702,9 +1858,17 @@ function subscriber_fnc(token) {
     }
 }
 
-function validate_search_fnc() {
-    var query = document.getElementById("query-fld").value.trim();
-    if (query === "") {
+function validate_search_fnc(formElement = false) {
+
+  var query = '';
+
+    if(formElement){
+      query = d(formElement).find('.search-int').val();
+    }else{
+    query = document.getElementById("query-fld").value.trim();
+    }
+    
+    if (query.trim() === "") {
         dialog_fnc('Keywords required', 'Please enter a search term, such as a product name or model number, to find relevant results. Ensure your input is specific to get the best matches.');
         return false;
     }
