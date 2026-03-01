@@ -261,7 +261,7 @@ function ajax_select_fnc(selector, type) {
     ajax: {
       url: base_url + 'Ajax/select_search',
       dataType: 'json',
-      delay: 250,
+      delay: 300,
       data: function (params) {
         return {
           q: params.term,
@@ -279,6 +279,9 @@ function ajax_select_fnc(selector, type) {
         };
       },
       cache: true
+    },
+    escapeMarkup: function (markup) {
+      return markup; 
     }
   });
 }
