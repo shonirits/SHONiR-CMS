@@ -277,7 +277,7 @@ min-height: auto !important;
   }
 }
 
-.blog-card ul > li {
+.card ul > li {
     padding: 10px 16px;
     margin: 8px 0;
     border-radius: 6px;
@@ -290,22 +290,22 @@ min-height: auto !important;
     color: #333;
 }
 
-.blog-card ul > li:hover {
+.card ul > li:hover {
     background: #e9ecef;
     transform: translateX(5px);
 }
 
-.blog-card ul {
+.card ul {
     list-style: none;
     padding-left: 0;
 }
 
-.blog-card ul ul {
+.card ul ul {
     list-style: disc;
     padding-left: 40px;
 }
 
-.blog-card ul ul li {
+.card ul ul li {
     background: transparent;
     border-left: none;
     padding: inherit;
@@ -313,10 +313,44 @@ min-height: auto !important;
     transform: none;
 }
 
-.blog-card ul ul li:hover {
+.card ul ul li:hover {
     background: transparent;
     transform: none;
 }
+
+.card table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  text-align: left;
+}
+
+.card thead {
+  background-color: #2c3e50;
+  color: #ffffff;
+}
+
+.card thead th {
+  padding: 12px;
+  border: 1px solid #34495e;
+}
+
+.card tbody td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.card tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.card tbody tr:hover {
+  background-color: #f1f1f1;
+  transition: background-color 0.3s ease;
+}
+
 
 pre {
             background-color: #2d2d2d; 
