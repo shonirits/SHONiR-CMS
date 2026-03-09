@@ -1140,7 +1140,7 @@ function load_assets_fnc() {
   `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/carousel/carousel.lazyload.css`,
   `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/carousel/carousel.arrows.css`,
   `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/carousel/carousel.thumbs.css`,
-  `https://cdn.jsdelivr.net/gh/shonirits/SHONiR-CMS@master/public/css/frontend/default.min.css`,
+  `${ccp.css_url}public/css/frontend/default.css`,
   `${ccp.css_url}public/css/frontend/${ccp.frontend_theme}/theme.css`,
 ];
 
@@ -1870,6 +1870,23 @@ function validate_search_fnc(formElement = false) {
     
     if (query.trim() === "") {
         dialog_fnc('Keywords required', 'Please enter a search term, such as a product name or model number, to find relevant results. Ensure your input is specific to get the best matches.');
+        return false;
+    }
+    return true;
+}
+
+function validate_bsearch_fnc(formElement = false) {
+
+  var query = '';
+
+    if(formElement){
+      query = d(formElement).find('.bsearch-int').val();
+    }else{
+    query = document.getElementById("bquery-fld").value.trim();
+    }
+    
+    if (query.trim() === "") {
+        dialog_fnc('Keywords required', 'Please enter a search term, such as a topic or subject, to find relevant results. Ensure your input is specific to get the best matches.');
         return false;
     }
     return true;

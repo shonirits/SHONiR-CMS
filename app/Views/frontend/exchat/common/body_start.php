@@ -1,0 +1,34 @@
+<noscript>
+<p><b>JavaScript Required</b></p>
+<p>It appears that your browser does not support JavaScript or it is currently disabled. For the optimal experience and full functionality of our website, please enable JavaScript in your browser settings.</p>
+<p>Thank you for your understanding and cooperation.</p>
+</noscript><?php echo isset($structured_data)?$structured_data:'' ?>
+<style>
+#body_loader {
+ position: fixed;
+    top: 47%;
+    left: 47%;
+    transform: translate(-47%, -47%);
+    z-index: 99999;
+    display: inline;
+  }
+</style><img src="<?php echo $cc['img_url'].'public/images/frontend/'.$cc['frontend_theme'].'/body_loader.webp'; ?>" id="body_loader" alt="Please Wait..." /><script>
+if (!window.nanobar) {
+  var options = {
+  id: 'pageloaderbar',
+    target: document.getElementById('pageloaderbar')
+  };
+  window.nanobar = new Nanobar(options);
+  window.nanobar.go(5);
+}
+const observer = new MutationObserver(() => {
+  const bar = document.querySelector('#pageloaderbar .bar');
+  if (bar) {
+    bar.style.backgroundColor = '#E69A19';
+    bar.style.height = '1px';
+    observer.disconnect();
+  }
+});
+observer.observe(document.body, { childList: true, subtree: true });
+ </script>
+<div id="body_content" style="display:none">

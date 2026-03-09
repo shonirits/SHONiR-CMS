@@ -11,7 +11,6 @@ if (isPluginsReady || isTimeout) {
   const ajax_selectors = [
   '#items',
   '#categories',
-  '#blogs_categories',
   '#sections',
   '#awards',
   '#natives',
@@ -261,7 +260,7 @@ function ajax_select_fnc(selector, type) {
     ajax: {
       url: base_url + 'Ajax/select_search',
       dataType: 'json',
-      delay: 300,
+      delay: 250,
       data: function (params) {
         return {
           q: params.term,
@@ -279,9 +278,6 @@ function ajax_select_fnc(selector, type) {
         };
       },
       cache: true
-    },
-    escapeMarkup: function (markup) {
-      return markup; 
     }
   });
 }
