@@ -79,7 +79,17 @@ Explore the live demo:
 - **Access Key:** `shonir`
   
 - **Username:** `demo@example.com`  
-- **Password:** `923333336426`  
+- **Password:** `923333336426`
+
+
+## 📘 Setup Guide
+
+👉 [https://8.shonir.com/shonir-cms/bpd19/setting-up-shonir-cms-a-modern-content-management-system-built-on-the-codeigniter-4-framework.html](https://8.shonir.com/shonir-cms/bpd19/setting-up-shonir-cms-a-modern-content-management-system-built-on-the-codeigniter-4-framework.html) https://8.shonir.com/shonir-cms/bpd19/setting-up-shonir-cms-a-modern-content-management-system-built-on-the-codeigniter-4-framework.html
+
+## 🎥 Video Tutorials
+
+- YouTube: [https://www.youtube.com/watch?v=49x44HNG2-o](https://www.youtube.com/watch?v=49x44HNG2-o) https://www.youtube.com/watch?v=49x44HNG2-o
+- Dailymotion: [https://www.dailymotion.com/video/xa1lp3s](https://www.dailymotion.com/video/xa1lp3s) https://www.dailymotion.com/video/xa1lp3s
 
 
 ---
