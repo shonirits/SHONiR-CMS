@@ -15,7 +15,7 @@ class Configurations extends Shonir_Controller
 
         $GLOBALS['HTMLS_CACHE'] = false;
 
-       $this->_verify_user_area();
+       $user_info = $this->_verify_user_area(1);
 
        $views_path = FCPATH.'app/Views/';
 
