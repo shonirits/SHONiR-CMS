@@ -29,11 +29,19 @@ function are_core_plugins_ready_fnc() {
 }
 
 function scroll_Fnc(SHONiR_ID){
+  if (d("#" + SHONiR_ID).length) {
     d('html, body').animate({
-                  scrollTop: d("#"+SHONiR_ID).offset().top-60
-              }, 1000);
-
+        scrollTop: d("#" + SHONiR_ID).offset().top - 60
+    }, 1000, function() {        
+        var exactUrl = window.location.pathname + window.location.search + '#' + SHONiR_ID;
+        if (history.pushState) {
+            history.pushState(null, null, exactUrl);
+        } else {
+            window.location.hash = SHONiR_ID;
+        }
+    });
   }
+}
 
   function scroll_top_fnc() {
    const btn = document.getElementById("scroll-top");
@@ -211,6 +219,17 @@ d(document).ready(function () {
   function int_fnc(token = token_fnc()){ 
 
   setTimeout(function() { 
+
+  var currentHash = window.location.hash;    
+    if (currentHash) {
+        var targetID = currentHash.substring(1); 
+          if (d("#" + targetID).length) {
+            setTimeout(function() {
+                window.scrollTo(0, 0); 
+                scroll_Fnc(targetID); 
+            }, 1);
+        }
+    }
 
     let offset = get_timezone_offset_fnc();
 
@@ -1000,7 +1019,7 @@ window.location.replace(link);
       });      
       setTimeout(function(){
         d(id).LoadingOverlay("text", "Yep, still loading...");
-      }, 5000); 
+      }, 9000); 
       }
 
 
@@ -1140,7 +1159,7 @@ function load_assets_fnc() {
   `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/carousel/carousel.lazyload.css`,
   `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/carousel/carousel.arrows.css`,
   `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/carousel/carousel.thumbs.css`,
-  `${ccp.css_url}public/css/frontend/default.css`,
+  `https://cdn.jsdelivr.net/gh/shonirits/SHONiR-CMS@master/public/css/frontend/default.min.css`,
   `${ccp.css_url}public/css/frontend/${ccp.frontend_theme}/theme.css`,
 ];
 
@@ -1173,8 +1192,8 @@ function load_assets_fnc() {
         setTimeout(() => {
           if (typeof nanobar?.go === 'function') nanobar.go(100);
           if (d('#body_content').length && d('#body_loader').length) {
-  d('#body_content').fadeIn(1000);
-  d('#body_loader').fadeOut(1000);
+  d('#body_content').fadeIn(500);
+  d('#body_loader').fadeOut(500);
 }
 
         }, 100);
@@ -1201,8 +1220,8 @@ on_window_ready_fnc(() => {
     if (typeof nanobar?.go === 'function') nanobar.go(100);
     if (typeof d === "function") {
       if (d('#body_content').length && d('#body_loader').length) {
-  d('#body_content').fadeIn(1000);
-  d('#body_loader').fadeOut(1000);
+  d('#body_content').fadeIn(500);
+  d('#body_loader').fadeOut(500);
 }
 
     }
@@ -1224,7 +1243,7 @@ on_window_ready_fnc(() => {
 
 const interval_var = setInterval(load_timeout_fnc, 5);
 function load_timeout_fnc() {
-  const loadtime = (Date.now() - start_timer) / 1000;
+  const loadtime = (Date.now() - start_timer) / 500;
 
   if (win_loaded) return stop_interval_fnc();
 
@@ -1425,6 +1444,33 @@ function sound_fnc(type = 'notification') {
   });
 }
 
+function currency_format_fnc(
+    number,
+    leftSymbol = '',
+    rightSymbol = '',
+    decimals = 0,
+    decimalPoint = '.',
+    separator = ','
+) {
+
+    if (number === null || number === '') {
+        return '';
+    }
+
+    const fixed = Number(number).toFixed(decimals);
+
+    const parts = fixed.split('.');
+
+    parts[0] = parts[0].replace(
+        /\B(?=(\d{3})+(?!\d))/g,
+        separator
+    );
+
+    const formatted = parts.join(decimalPoint);
+
+    return leftSymbol + formatted + rightSymbol;
+}
+
 
 function item_quick_view_fnc(details, item_image, item_url, token) {
   let id    = details.item_id;       
@@ -1500,16 +1546,40 @@ if (badgeSt && isSt) {
   let priceHtml = '';
 if (String(ccp.price).toUpperCase() === 'TRUE') {
 
-  // format for display
-  const currentPrice = price.toFixed(2);
-  const prevPrice = price_previous.toFixed(2);
+const currentPrice = currency_format_fnc(
+    price,
+    ccp.currency_left_symbol,
+    ccp.currency_right_symbol,
+    ccp.currency_decimals,
+    ccp.currency_decimal_point,
+    ccp.currency_separator
+);
+
+let prevPrice;
+
+if (price_previous > price) {
+
+    prevPrice = currency_format_fnc(
+        price_previous,
+        ccp.currency_left_symbol,
+        ccp.currency_right_symbol,
+        ccp.currency_decimals,
+        ccp.currency_decimal_point,
+        ccp.currency_separator
+    );
+
+} else {
+
+    prevPrice = currentPrice;
+
+}
 
   priceHtml = `
    <div class="price-box my-4">
                             <span class="price-label">Estimated Price:</span>
-                            <h2 class="price-value">US $ ${currentPrice} - ${price_previous > price ? prevPrice : currentPrice}
+                            <h2 class="price-value">${currentPrice} - ${prevPrice}
     </h2>
-                            <p class="small text-muted mb-0 price-hint">*Prices vary based on customization & quantity.</p>
+                            <p class="small text-muted mb-0 price-hint">*Prices vary based on customization, size & quantity.</p>
                         </div>`;
 }
 
@@ -1606,9 +1676,9 @@ d('#' + id).on('shown.bs.modal', function () {
 
 }
 
-function item_quick_send_fnc(details, item_image, item_url, token) {
+function item_quick_send_fnc(title = 'REQUEST A QUOTE', submit = 'Send Request', details, item_image, item_url, token) {
   let id = details.item_id;
-let title = details.title;
+let item_title = details.title;
 let spotlight = details.spotlight || '';
 
 let content = `
@@ -1616,14 +1686,14 @@ let content = `
   <div class="quick_send_item_${id}_frm contact_frm container">
     <div class="row mb-1">
       <div class="col-12 text-center">
-        <h2>${title}</h2>
+        <h2>${item_title}</h2>
       </div>
     </div>
 
     <div class="row">
       <!-- Left side -->
       <div class="col-lg-6 col-md-12 p-3 mb-3 order-2 order-lg-1 text-center">
-        <a href="${item_url}"><img class="img-fluid rounded shadow enquire-img" src="${item_image}" alt="${title}"></a>
+        <a href="${item_url}"><img class="img-fluid rounded shadow enquire-img" src="${item_image}" alt="${item_title}"></a>
         <div class="spotlight my-5">${spotlight}</div>
       </div>
 
@@ -1652,15 +1722,9 @@ let content = `
           </div>
 
           <div class="mb-1">
-            <label for="country_${id}" class="form-label"><i class="fa-solid fa-flag"></i> Country</label>
-            <input type="text" class="form-control" id="country_${id}" name="country" placeholder="What's the country?" required>
-            <div class="invalid-feedback">Country is required.</div>
-          </div>
-
-          <div class="mb-1">
-            <label for="quantity_${id}" class="form-label"><i class="fas fa-sort-amount-up"></i> Quantity</label>
-            <input type="text" class="form-control" id="quantity_${id}" name="quantity" placeholder="What's the quantity?" required>
-            <div class="invalid-feedback">Quantity is required.</div>
+            <label for="address_${id}" class="form-label"><i class="fa-solid fa-flag"></i> Address</label>
+            <input type="text" class="form-control" id="address_${id}" name="address" placeholder="Enter your address" required>
+            <div class="invalid-feedback">Address is required.</div>
           </div>
 
           <div class="mb-1">
@@ -1682,7 +1746,7 @@ let content = `
 
           <div class="d-grid pt-3">
             <button type="submit" class="btn btn-primary hvr-radial-out">
-              <i class="fa-solid fa-paper-plane"></i> Send Request
+              <i class="fa-solid fa-paper-plane"></i> ${submit}
             </button>
           </div>
         </form>
@@ -1692,7 +1756,7 @@ let content = `
 </div>
 `;
 
-modal_fnc(id, 'REQUEST A QUOTE', content);
+modal_fnc(id, title, content);
 
 d.ajax({
     url: `${ccp.base_url}Ajax/captcha_token`,
@@ -1769,9 +1833,6 @@ d.ajax({
       }
       form.classList.add('was-validated');
     }, false);
-
-
-
 
 }
 
