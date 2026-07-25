@@ -1154,11 +1154,10 @@ function load_assets_fnc() {
   `https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.css`,
   `https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css`,
   `https://cdn.jsdelivr.net/npm/star-rating-svg@3.5.0/src/css/star-rating-svg.min.css`,
-  `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.css`,
-  `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/carousel/carousel.css`,
-  `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/carousel/carousel.lazyload.css`,
-  `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/carousel/carousel.arrows.css`,
-  `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/carousel/carousel.thumbs.css`,
+  `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.14/dist/fancybox/fancybox.min.css`,
+  `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.14/dist/carousel/carousel.css`,
+  `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.14/dist/carousel/carousel.arrows.css`,
+  `https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.14/dist/carousel/carousel.thumbs.css`,
   `https://cdn.jsdelivr.net/gh/shonirits/SHONiR-CMS@master/public/css/frontend/default.min.css`,
   `${ccp.css_url}public/css/frontend/${ccp.frontend_theme}/theme.css`,
 ];
@@ -2050,3 +2049,11 @@ let url = ccp.base_url+"Ajax/add2cart";
 }
 
  dom_ready_fnc();   
+
+ window.addEventListener('load', function () {
+    const iframe = document.getElementById('merchantwidgetiframe');
+
+    if (iframe) {
+        iframe.title = 'Google Merchant Center';
+    }
+});
